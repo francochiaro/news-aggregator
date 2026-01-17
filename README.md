@@ -1,11 +1,12 @@
 # Newsletter Aggregator
 
-A local-first web app that aggregates TL;DR newsletter content into structured, summarized views with GPT-powered insights. Uses SQLite for local storage and OpenAI API for AI features.
+A local-first web app that aggregates newsletter content from multiple sources into structured, summarized views with GPT-powered insights. Uses SQLite for local storage and OpenAI API for AI features.
 
 ## Features
 
-- **Gmail Integration**: Connects to your Gmail to fetch TL;DR newsletters automatically
-- **Smart Parsing**: Extracts individual articles from TL;DR emails with titles, reading times, and descriptions
+- **Gmail Integration**: Connects to your Gmail to fetch newsletters automatically
+- **Multi-Newsletter Support**: Parses emails from TL;DR, Not Boring, 6pages, and The Batch
+- **Smart Parsing**: Extracts individual articles with titles, reading times, and descriptions using a modular parser registry
 - **Web Scraping**: Fetches full article content from source URLs
 - **AI Summarization**: Generates consolidated summaries using GPT
 - **Theme Detection**: Identifies common themes and trends across articles
@@ -59,7 +60,7 @@ A local-first web app that aggregates TL;DR newsletter content into structured, 
 │  │                 │  │                 │  │  - Summarization            │  │
 │  │  - OAuth 2.0    │  │  - URL resolver │  │  - Deduplication            │  │
 │  │  - Fetch emails │  │  - Content      │  │  - Theme detection          │  │
-│  │  - TL;DR parser │  │    extraction   │  │  - Chat Q&A                 │  │
+│  │  - Multi-parser │  │    extraction   │  │  - Chat Q&A                 │  │
 │  └────────┬────────┘  └────────┬────────┘  └─────────────┬───────────────┘  │
 │           │                    │                         │                   │
 └───────────┼────────────────────┼─────────────────────────┼───────────────────┘
@@ -169,20 +170,48 @@ web/
 │   │   ├── chat/               # Chat interface page
 │   │   └── settings/           # Settings page
 │   ├── components/             # React components
-│   └── lib/
-│       ├── ai/                 # OpenAI integration
-│       │   ├── client.ts       # API client with rate limiting
-│       │   ├── dedup.ts        # Semantic deduplication
-│       │   ├── summarize.ts    # Article summarization
-│       │   └── themes.ts       # Theme detection
-│       ├── aggregation/        # Aggregation pipeline
-│       ├── db/                 # SQLite database
-│       ├── gmail/              # Gmail API integration
-│       │   ├── auth.ts         # OAuth with encrypted tokens
-│       │   ├── parser.ts       # TL;DR email parser
-│       │   └── service.ts      # Email fetching
-│       └── scraper/            # Web scraper for articles
+│   ├── lib/
+│   │   ├── ai/                 # OpenAI integration
+│   │   │   ├── client.ts       # API client with rate limiting
+│   │   │   ├── dedup.ts        # Semantic deduplication
+│   │   │   ├── summarize.ts    # Article summarization
+│   │   │   └── themes.ts       # Theme detection
+│   │   ├── aggregation/        # Aggregation pipeline
+│   │   ├── db/                 # SQLite database
+│   │   ├── gmail/              # Gmail API integration
+│   │   │   ├── auth.ts         # OAuth with encrypted tokens
+│   │   │   ├── parser.ts       # Email ingestion orchestrator
+│   │   │   └── service.ts      # Email fetching (multi-sender)
+│   │   ├── parsers/            # Newsletter-specific parsers
+│   │   │   ├── index.ts        # Parser registry
+│   │   │   ├── types.ts        # Parser interfaces
+│   │   │   ├── canonicalize.ts # URL normalization & dedup
+│   │   │   ├── tldr.ts         # TL;DR parser
+│   │   │   ├── notboring.ts    # Not Boring (Substack) parser
+│   │   │   ├── sixpages.ts     # 6pages parser
+│   │   │   └── thebatch.ts     # The Batch parser (inline)
+│   │   └── scraper/            # Web scraper for articles
+│   └── __tests__/              # Test suite
+│       ├── parsers.test.ts     # Parser unit tests
+│       ├── e2e-ingestion.test.ts # E2E tests
+│       └── fixtures/           # Sample newsletter HTML
 └── data/                       # SQLite database files (gitignored)
+```
+
+## Supported Newsletters
+
+| Newsletter | Sender | Extraction Method |
+|------------|--------|-------------------|
+| TL;DR | dan@tldrnewsletter.com | URL-based (tracking links) |
+| Not Boring | notboring@substack.com | URL-based (external links) |
+| 6pages | hello@6pages.com | URL-based (article links) |
+| The Batch | thebatch@deeplearning.ai | Inline content (no external scraping) |
+
+## Running Tests
+
+```bash
+cd web
+npm test
 ```
 
 ## License
