@@ -1,14 +1,44 @@
 import { getDb, Article, Topic, Aggregation, UserFeedback, TopicPreference } from './schema';
 
 // Article operations
-export function insertArticle(article: Omit<Article, 'id' | 'created_at'>): Article {
+export function insertArticle(article: {
+  title: string;
+  summary: string;
+  content?: string | null;
+  source_url: string;
+  final_url?: string | null;
+  reading_time?: string | null;
+  newsletter_date: string;
+}): Article {
   const db = getDb();
   const stmt = db.prepare(`
-    INSERT INTO articles (title, summary, source_url, newsletter_date)
-    VALUES (?, ?, ?, ?)
+    INSERT INTO articles (title, summary, content, source_url, final_url, reading_time, newsletter_date)
+    VALUES (?, ?, ?, ?, ?, ?, ?)
   `);
-  const result = stmt.run(article.title, article.summary, article.source_url, article.newsletter_date);
+  const result = stmt.run(
+    article.title,
+    article.summary,
+    article.content || null,
+    article.source_url,
+    article.final_url || null,
+    article.reading_time || null,
+    article.newsletter_date
+  );
   return getArticleById(result.lastInsertRowid as number)!;
+}
+
+export function updateArticleContent(articleId: number, content: string, finalUrl?: string): void {
+  const db = getDb();
+  if (finalUrl) {
+    db.prepare('UPDATE articles SET content = ?, final_url = ? WHERE id = ?').run(content, finalUrl, articleId);
+  } else {
+    db.prepare('UPDATE articles SET content = ? WHERE id = ?').run(content, articleId);
+  }
+}
+
+export function getArticlesWithoutContent(): Article[] {
+  const db = getDb();
+  return db.prepare('SELECT * FROM articles WHERE content IS NULL OR content = ""').all() as Article[];
 }
 
 export function getArticleById(id: number): Article | undefined {

@@ -28,7 +28,10 @@ function initializeSchema(db: Database.Database) {
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       title TEXT NOT NULL,
       summary TEXT NOT NULL,
+      content TEXT,
       source_url TEXT NOT NULL,
+      final_url TEXT,
+      reading_time TEXT,
       newsletter_date TEXT NOT NULL,
       created_at TEXT DEFAULT (datetime('now'))
     );
@@ -87,6 +90,25 @@ function initializeSchema(db: Database.Database) {
     CREATE INDEX IF NOT EXISTS idx_aggregations_dates ON aggregations(start_date, end_date);
     CREATE INDEX IF NOT EXISTS idx_user_feedback_article ON user_feedback(article_id);
   `);
+
+  // Run migrations for existing databases
+  runMigrations(db);
+}
+
+function runMigrations(db: Database.Database) {
+  // Check if content column exists, if not add it
+  const columns = db.pragma('table_info(articles)') as Array<{ name: string }>;
+  const columnNames = columns.map(c => c.name);
+
+  if (!columnNames.includes('content')) {
+    db.exec('ALTER TABLE articles ADD COLUMN content TEXT');
+  }
+  if (!columnNames.includes('final_url')) {
+    db.exec('ALTER TABLE articles ADD COLUMN final_url TEXT');
+  }
+  if (!columnNames.includes('reading_time')) {
+    db.exec('ALTER TABLE articles ADD COLUMN reading_time TEXT');
+  }
 }
 
 // Type definitions for our database entities
@@ -94,7 +116,10 @@ export interface Article {
   id: number;
   title: string;
   summary: string;
+  content: string | null;
   source_url: string;
+  final_url: string | null;
+  reading_time: string | null;
   newsletter_date: string;
   created_at: string;
 }

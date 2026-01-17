@@ -285,6 +285,22 @@
       "priority": 19,
       "passes": true,
       "notes": "API at /api/chat with strict prompt instructions"
+    },
+    {
+      "id": "US-020",
+      "title": "Fix email parser to properly extract TL;DR articles with links",
+      "description": "As a user, I want the parser to correctly identify individual articles in TL;DR emails and extract their source URLs for scraping.",
+      "acceptanceCriteria": [
+        "Parser identifies TL;DR email sections (Headlines, Deep Dives, Engineering, etc.)",
+        "Each article is extracted with: title, reading time, brief description, and source URL",
+        "Tracking URLs (tracking.tldrnewsletter.com) are properly captured",
+        "Web scraper fetches actual article content from source URLs",
+        "Scraped content is stored in the articles table",
+        "Typecheck passes"
+      ],
+      "priority": 20,
+      "passes": true,
+      "notes": "Fixed parser in web/src/lib/gmail/parser.ts, added scraper in web/src/lib/scraper/index.ts, updated pipeline to scrape content"
     }
   ]
 }

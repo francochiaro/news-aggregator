@@ -6,145 +6,253 @@ export interface ParsedArticle {
   summary: string;
   sourceUrl: string;
   newsletterDate: string;
+  readingTime?: string;
+  section?: string;
 }
 
 /**
+ * TL;DR Newsletter Section Types
+ */
+const TLDR_SECTIONS = [
+  'Headlines & Launches',
+  'Deep Dives & Analysis',
+  'Engineering & Resources',
+  'Quick Links',
+  'Big Tech & Startups',
+  'Science & Futuristic Technology',
+  'Programming, Design & Data Science',
+  'Miscellaneous',
+  'Opinions & Tutorials',
+  'Launches & Tools',
+  'Articles & Tutorials',
+  'News & Trends',
+];
+
+/**
  * Parse TL;DR newsletter HTML to extract individual articles.
- * TL;DR newsletters typically have a consistent structure with:
- * - Article titles as links
- * - Brief summaries below titles
- * - Sponsor markers to skip
  */
 export function parseNewsletterContent(message: GmailMessage): ParsedArticle[] {
-  const articles: ParsedArticle[] = [];
   const htmlContent = message.htmlBody || message.textBody;
 
   if (!htmlContent) {
-    return articles;
+    return [];
   }
 
-  // Parse the newsletter date from email headers
   const newsletterDate = parseEmailDate(message.date);
-
-  // Try different parsing strategies based on newsletter format
-  const parsedArticles = parseHtmlContent(htmlContent, newsletterDate);
-
-  return parsedArticles;
+  return parseTLDRNewsletter(htmlContent, newsletterDate);
 }
 
 function parseEmailDate(dateString: string): string {
   try {
     const date = new Date(dateString);
-    return date.toISOString().split('T')[0]; // YYYY-MM-DD format
+    return date.toISOString().split('T')[0];
   } catch {
     return new Date().toISOString().split('T')[0];
   }
 }
 
-function parseHtmlContent(html: string, newsletterDate: string): ParsedArticle[] {
+/**
+ * Parse TL;DR newsletter format specifically
+ */
+function parseTLDRNewsletter(html: string, newsletterDate: string): ParsedArticle[] {
   const articles: ParsedArticle[] = [];
 
-  // Remove HTML comments and scripts
+  // Clean HTML but preserve structure
   let cleanHtml = html
     .replace(/<!--[\s\S]*?-->/g, '')
     .replace(/<script[\s\S]*?<\/script>/gi, '')
     .replace(/<style[\s\S]*?<\/style>/gi, '');
 
-  // TL;DR newsletters typically structure articles with:
-  // 1. A headline link
-  // 2. A short description
-  // 3. Sometimes reading time or category tags
+  // Pattern to find tracking links - capture everything between <a> and </a>
+  // This handles nested tags like <span><strong>Title</strong></span>
+  const tldrLinkPattern = /<a[^>]*href=["'](https?:\/\/tracking\.tldrnewsletter\.com[^"']+)["'][^>]*>([\s\S]*?)<\/a>/gi;
 
-  // Strategy 1: Look for article blocks with links and descriptions
-  // Common patterns in TL;DR newsletters
-
-  // Match links with associated text content
-  const linkPattern = /<a[^>]*href=["']([^"']+)["'][^>]*>([^<]+)<\/a>/gi;
-  const matches: { url: string; title: string; position: number }[] = [];
+  const linkMatches: Array<{
+    url: string;
+    rawContent: string;
+    position: number;
+    endPosition: number;
+  }> = [];
 
   let match;
-  while ((match = linkPattern.exec(cleanHtml)) !== null) {
+  while ((match = tldrLinkPattern.exec(cleanHtml)) !== null) {
     const url = match[1];
-    const title = cleanText(match[2]);
+    const rawContent = match[2];
 
-    // Filter out navigation links, social links, and sponsor links
-    if (isValidArticleUrl(url) && isValidTitle(title)) {
-      matches.push({
+    // Extract text from nested tags
+    const textContent = stripHtml(rawContent).trim();
+
+    // Skip navigation/utility links
+    if (isValidArticleTitle(textContent)) {
+      linkMatches.push({
         url,
-        title,
+        rawContent: textContent,
         position: match.index,
+        endPosition: match.index + match[0].length,
       });
     }
   }
 
-  // For each valid link, try to extract the surrounding summary text
-  for (let i = 0; i < matches.length; i++) {
-    const current = matches[i];
-    const nextPosition = matches[i + 1]?.position || cleanHtml.length;
+  console.log(`Found ${linkMatches.length} potential article links`);
 
-    // Extract text between current link and next link
-    const sectionHtml = cleanHtml.substring(current.position, nextPosition);
-    const summary = extractSummaryFromSection(sectionHtml, current.title);
+  // For each valid link, extract title, reading time, and description
+  for (let i = 0; i < linkMatches.length; i++) {
+    const current = linkMatches[i];
+    const nextPosition = linkMatches[i + 1]?.position || cleanHtml.length;
 
-    if (summary && summary.length > 20) {
+    // Parse title and reading time from link text
+    // Format: "Article Title (X minute read)"
+    const titleMatch = current.rawContent.match(/^(.+?)\s*\((\d+)\s*min(?:ute)?\s*read\)\s*$/i);
+
+    let title: string;
+    let readingTime: string | undefined;
+
+    if (titleMatch) {
+      title = titleMatch[1].trim();
+      readingTime = `${titleMatch[2]} min read`;
+    } else {
+      title = current.rawContent;
+      readingTime = undefined;
+    }
+
+    // Get HTML between this link and next link for description
+    const afterLinkHtml = cleanHtml.substring(current.endPosition, nextPosition);
+
+    // Extract description - look for text after <br> tags
+    const description = extractDescription(afterLinkHtml);
+
+    // Find section
+    const section = findSection(cleanHtml, current.position);
+
+    // Only add if we have a meaningful title
+    if (title.length > 10 && description.length > 20) {
       articles.push({
-        title: current.title,
-        summary: summary,
+        title,
+        summary: description,
         sourceUrl: current.url,
         newsletterDate,
+        readingTime,
+        section,
       });
     }
   }
+
+  console.log(`Parsed ${articles.length} articles`);
 
   // Deduplicate by URL
   const seen = new Set<string>();
   return articles.filter(article => {
-    if (seen.has(article.sourceUrl)) {
+    const normalizedUrl = normalizeTrackingUrl(article.sourceUrl);
+    if (seen.has(normalizedUrl)) {
       return false;
     }
-    seen.add(article.sourceUrl);
+    seen.add(normalizedUrl);
     return true;
   });
 }
 
-function cleanText(text: string): string {
-  return text
+/**
+ * Strip HTML tags and decode entities
+ */
+function stripHtml(html: string): string {
+  return html
+    .replace(/<[^>]+>/g, '')
     .replace(/&nbsp;/g, ' ')
     .replace(/&amp;/g, '&')
     .replace(/&lt;/g, '<')
     .replace(/&gt;/g, '>')
     .replace(/&quot;/g, '"')
     .replace(/&#39;/g, "'")
+    .replace(/\r?\n/g, ' ')
     .replace(/\s+/g, ' ')
     .trim();
 }
 
-function isValidArticleUrl(url: string): boolean {
-  // Filter out common non-article URLs
-  const invalidPatterns = [
-    /^mailto:/i,
-    /^javascript:/i,
-    /^#/,
-    /twitter\.com/i,
-    /facebook\.com/i,
-    /linkedin\.com\/share/i,
-    /unsubscribe/i,
-    /manage.*preferences/i,
-    /view.*browser/i,
-    /tldr\.tech\/?$/i, // TLDR homepage
-    /tldrnewsletter\.com\/?$/i,
-  ];
-
-  return !invalidPatterns.some(pattern => pattern.test(url));
+/**
+ * Normalize tracking URLs to prevent duplicates
+ */
+function normalizeTrackingUrl(url: string): string {
+  const encodedMatch = url.match(/https?%3A%2F%2F[^/]+/i);
+  if (encodedMatch) {
+    return decodeURIComponent(encodedMatch[0]).toLowerCase();
+  }
+  return url.toLowerCase();
 }
 
-function isValidTitle(title: string): boolean {
-  // Filter out common non-article titles
-  if (title.length < 5 || title.length > 200) {
+/**
+ * Find the section header for an article position
+ */
+function findSection(html: string, position: number): string | undefined {
+  const beforeHtml = html.substring(0, position);
+
+  // Look for section headers - they appear in <h1> or <strong> tags
+  for (const section of TLDR_SECTIONS) {
+    const pattern = new RegExp(escapeRegex(section), 'gi');
+    if (pattern.test(beforeHtml)) {
+      // Find the last occurrence
+      const lastIndex = beforeHtml.toLowerCase().lastIndexOf(section.toLowerCase());
+      if (lastIndex !== -1) {
+        return section;
+      }
+    }
+  }
+
+  return undefined;
+}
+
+function escapeRegex(str: string): string {
+  return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+/**
+ * Extract description text from HTML after a link
+ */
+function extractDescription(html: string): string {
+  // The description is typically in a <span> after some <br> tags
+  // Pattern: <br><br><span...>Description text</span>
+
+  // First, try to find span with the description
+  const spanMatch = html.match(/<span[^>]*style="[^"]*font-family[^"]*"[^>]*>([\s\S]*?)<\/span>/i);
+  if (spanMatch) {
+    const text = stripHtml(spanMatch[1]);
+    if (text.length > 20) {
+      return truncateText(text, 500);
+    }
+  }
+
+  // Fallback: just strip all HTML and take the first chunk of text
+  let text = stripHtml(html);
+
+  // Remove common patterns
+  text = text
+    .replace(/\[sponsor\]/gi, '')
+    .replace(/sponsor/gi, '')
+    .replace(/^\s*[,.\-–—]+\s*/, '')
+    .trim();
+
+  return truncateText(text, 500);
+}
+
+function truncateText(text: string, maxLength: number): string {
+  if (text.length <= maxLength) return text;
+
+  const truncated = text.substring(0, maxLength);
+  const lastPeriod = truncated.lastIndexOf('.');
+  if (lastPeriod > maxLength * 0.6) {
+    return truncated.substring(0, lastPeriod + 1);
+  }
+  return truncated.trim() + '...';
+}
+
+function isValidArticleTitle(title: string): boolean {
+  if (title.length < 10 || title.length > 300) {
     return false;
   }
 
-  const invalidTitles = [
+  const invalidPatterns = [
+    /^sign up$/i,
+    /^advertise$/i,
+    /^view online$/i,
     /^read more$/i,
     /^click here$/i,
     /^subscribe$/i,
@@ -152,48 +260,24 @@ function isValidTitle(title: string): boolean {
     /^view in browser$/i,
     /^sponsor$/i,
     /^advertisement$/i,
+    /^ad$/i,
     /^\d+$/,
     /^tldr$/i,
+    /^share$/i,
+    /^forward$/i,
+    /^manage preferences$/i,
+    /^privacy policy$/i,
+    /^terms/i,
+    /^together with/i,
+    /\(sponsor\)/i,           // Filter out "(Sponsor)" in title
+    /^apply to/i,             // "Apply to claim..."
+    /^claim your/i,           // "Claim your free..."
+    /early-stage startup/i,   // Sponsor content
+    /free year/i,             // Sponsor content
+    /free for/i,              // Sponsor content
   ];
 
-  return !invalidTitles.some(pattern => pattern.test(title));
-}
-
-function extractSummaryFromSection(html: string, titleToExclude: string): string {
-  // Remove all HTML tags to get plain text
-  let text = html
-    .replace(/<br\s*\/?>/gi, '\n')
-    .replace(/<\/p>/gi, '\n')
-    .replace(/<\/div>/gi, '\n')
-    .replace(/<[^>]+>/g, ' ')
-    .replace(/\s+/g, ' ')
-    .trim();
-
-  // Clean up the text
-  text = cleanText(text);
-
-  // Remove the title from the text
-  text = text.replace(titleToExclude, '').trim();
-
-  // Remove common suffixes like "Read more", "(X minute read)", etc.
-  text = text
-    .replace(/\(\d+\s*min(ute)?s?\s*read\)/gi, '')
-    .replace(/read\s*more\s*$/i, '')
-    .replace(/continue\s*reading\s*$/i, '')
-    .replace(/\[sponsor\]/gi, '')
-    .trim();
-
-  // Limit summary length
-  if (text.length > 500) {
-    text = text.substring(0, 500).trim();
-    // Try to end at a sentence
-    const lastPeriod = text.lastIndexOf('.');
-    if (lastPeriod > 300) {
-      text = text.substring(0, lastPeriod + 1);
-    }
-  }
-
-  return text;
+  return !invalidPatterns.some(pattern => pattern.test(title.trim()));
 }
 
 /**
@@ -213,17 +297,16 @@ export async function processNewsletters(messages: GmailMessage[]): Promise<{
     processed += articles.length;
 
     for (const article of articles) {
-      // Check if article already exists
       if (articleExistsByUrl(article.sourceUrl)) {
         skipped++;
         continue;
       }
 
-      // Save to database
       insertArticle({
         title: article.title,
         summary: article.summary,
         source_url: article.sourceUrl,
+        reading_time: article.readingTime || null,
         newsletter_date: article.newsletterDate,
       });
       saved++;
