@@ -3,6 +3,8 @@
 import { useState, useEffect } from 'react';
 import DateRangePicker from '@/components/DateRangePicker';
 import MarkdownRenderer from '@/components/MarkdownRenderer';
+import InsightCard from '@/components/InsightCard';
+import { StructuredInsights, parseStructuredInsights } from '@/lib/ai/insights';
 
 interface Aggregation {
   id: number;
@@ -107,6 +109,13 @@ export default function SummaryPage() {
     });
   };
 
+  // Parse structured insights or fallback to legacy format
+  const structuredInsights: StructuredInsights | null = aggregation?.insights
+    ? parseStructuredInsights(aggregation.insights)
+    : null;
+
+  const isLegacyInsights = aggregation?.insights && !structuredInsights;
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
@@ -123,7 +132,7 @@ export default function SummaryPage() {
   return (
     <div>
       {/* Page Header */}
-      <div className="mb-12">
+      <div className="mb-8">
         <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-6">
           <div>
             <h1
@@ -165,7 +174,7 @@ export default function SummaryPage() {
               disabled={generating}
               className="px-5 py-2.5 text-sm font-medium text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed w-full sm:w-auto"
               style={{
-                backgroundColor: generating ? 'var(--color-accent)' : 'var(--color-accent)',
+                backgroundColor: 'var(--color-accent)',
               }}
               onMouseEnter={(e) => {
                 if (!generating) {
@@ -263,10 +272,10 @@ export default function SummaryPage() {
           </button>
         </div>
       ) : (
-        <div className="space-y-8">
+        <div>
           {/* Date Range Meta */}
           <div
-            className="flex items-center justify-between py-3 px-4 rounded-lg"
+            className="flex items-center justify-between py-3 px-4 rounded-lg mb-6"
             style={{ backgroundColor: 'var(--color-bg-tertiary)' }}
           >
             <span
@@ -283,47 +292,246 @@ export default function SummaryPage() {
             </span>
           </div>
 
-          {/* Summary Card */}
-          <div
-            className="rounded-xl border p-6 sm:p-8"
-            style={{
-              backgroundColor: 'var(--color-bg-secondary)',
-              borderColor: 'var(--color-border)',
-            }}
-          >
-            <h2
-              className="text-lg font-medium mb-6"
-              style={{ color: 'var(--color-text-primary)' }}
-            >
-              Summary
-            </h2>
-            <div className="max-w-prose">
-              <MarkdownRenderer content={aggregation.summary} />
+          {/* Two-Column Layout */}
+          <div className="flex flex-col lg:flex-row gap-6">
+            {/* Left Column - Weekly Summary (60-65%) */}
+            <div className="lg:w-[62%]">
+              <div
+                className="rounded-xl border p-6 sm:p-8 h-full"
+                style={{
+                  backgroundColor: 'var(--color-bg-secondary)',
+                  borderColor: 'var(--color-border)',
+                }}
+              >
+                <h2
+                  className="text-lg font-semibold mb-6"
+                  style={{ color: 'var(--color-text-primary)' }}
+                >
+                  Weekly Summary
+                </h2>
+                <div className="prose-container" style={{ maxWidth: '65ch' }}>
+                  <MarkdownRenderer content={aggregation.summary} />
+                </div>
+              </div>
+            </div>
+
+            {/* Right Column - Key Insights (35-40%) */}
+            <div className="lg:w-[38%]">
+              <div className="space-y-4">
+                <h2
+                  className="text-lg font-semibold mb-4"
+                  style={{ color: 'var(--color-text-primary)' }}
+                >
+                  Key Insights
+                </h2>
+
+                {/* Structured Insights Cards */}
+                {structuredInsights ? (
+                  <>
+                    {/* Executive Overview - Expanded by default */}
+                    <InsightCard
+                      title="Executive Overview"
+                      summary={structuredInsights.executiveOverview.mainInsight}
+                      defaultExpanded={true}
+                    >
+                      <div className="space-y-4 pt-3">
+                        {/* Main Insight */}
+                        <div>
+                          <h4
+                            className="text-xs font-semibold uppercase tracking-wide mb-2"
+                            style={{ color: 'var(--color-text-muted)' }}
+                          >
+                            Main Insight
+                          </h4>
+                          <p
+                            className="text-sm leading-relaxed"
+                            style={{ color: 'var(--color-text-secondary)' }}
+                          >
+                            {structuredInsights.executiveOverview.mainInsight}
+                          </p>
+                        </div>
+
+                        {/* Key Themes */}
+                        {structuredInsights.executiveOverview.keyThemes.length > 0 && (
+                          <div>
+                            <h4
+                              className="text-xs font-semibold uppercase tracking-wide mb-2"
+                              style={{ color: 'var(--color-text-muted)' }}
+                            >
+                              Key Themes
+                            </h4>
+                            <div className="space-y-1.5">
+                              {structuredInsights.executiveOverview.keyThemes.map((theme, i) => (
+                                <div
+                                  key={i}
+                                  className="flex items-center justify-between text-sm"
+                                >
+                                  <span style={{ color: 'var(--color-text-secondary)' }}>
+                                    {theme.name}
+                                  </span>
+                                  <span
+                                    className="text-xs px-2 py-0.5 rounded-full"
+                                    style={{
+                                      backgroundColor: 'var(--color-bg-tertiary)',
+                                      color: 'var(--color-text-muted)',
+                                    }}
+                                  >
+                                    {theme.articleCount} articles
+                                  </span>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Emerging Trends */}
+                        {structuredInsights.executiveOverview.emergingTrends.length > 0 && (
+                          <div>
+                            <h4
+                              className="text-xs font-semibold uppercase tracking-wide mb-2"
+                              style={{ color: 'var(--color-text-muted)' }}
+                            >
+                              Emerging Trends
+                            </h4>
+                            <ul className="space-y-1.5">
+                              {structuredInsights.executiveOverview.emergingTrends.map((trend, i) => (
+                                <li
+                                  key={i}
+                                  className="text-sm flex items-start gap-2"
+                                  style={{ color: 'var(--color-text-secondary)' }}
+                                >
+                                  <span style={{ color: 'var(--color-accent)' }}>•</span>
+                                  {trend}
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
+                      </div>
+                    </InsightCard>
+
+                    {/* Market & Competitive Moves */}
+                    {structuredInsights.marketMoves.bullets.length > 0 && (
+                      <InsightCard
+                        title="Market & Competitive Moves"
+                        summary={structuredInsights.marketMoves.summary}
+                      >
+                        <ul className="space-y-2 pt-3">
+                          {structuredInsights.marketMoves.bullets.map((bullet, i) => (
+                            <li
+                              key={i}
+                              className="text-sm flex items-start gap-2"
+                              style={{ color: 'var(--color-text-secondary)' }}
+                            >
+                              <span style={{ color: 'var(--color-accent)' }}>•</span>
+                              {bullet}
+                            </li>
+                          ))}
+                        </ul>
+                      </InsightCard>
+                    )}
+
+                    {/* Technology & Architecture Shifts */}
+                    {structuredInsights.techShifts.bullets.length > 0 && (
+                      <InsightCard
+                        title="Technology & Architecture Shifts"
+                        summary={structuredInsights.techShifts.summary}
+                      >
+                        <ul className="space-y-2 pt-3">
+                          {structuredInsights.techShifts.bullets.map((bullet, i) => (
+                            <li
+                              key={i}
+                              className="text-sm flex items-start gap-2"
+                              style={{ color: 'var(--color-text-secondary)' }}
+                            >
+                              <span style={{ color: 'var(--color-accent)' }}>•</span>
+                              {bullet}
+                            </li>
+                          ))}
+                        </ul>
+                      </InsightCard>
+                    )}
+
+                    {/* Industry Impact & Use Cases */}
+                    {structuredInsights.industryImpact.industries.length > 0 && (
+                      <InsightCard
+                        title="Industry Impact & Use Cases"
+                        summary={structuredInsights.industryImpact.summary}
+                      >
+                        <div className="space-y-4 pt-3">
+                          {structuredInsights.industryImpact.industries.map((industry, i) => (
+                            <div key={i}>
+                              <h4
+                                className="text-xs font-semibold uppercase tracking-wide mb-1.5"
+                                style={{ color: 'var(--color-text-muted)' }}
+                              >
+                                {industry.name}
+                              </h4>
+                              <ul className="space-y-1.5">
+                                {industry.bullets.map((bullet, j) => (
+                                  <li
+                                    key={j}
+                                    className="text-sm flex items-start gap-2"
+                                    style={{ color: 'var(--color-text-secondary)' }}
+                                  >
+                                    <span style={{ color: 'var(--color-accent)' }}>•</span>
+                                    {bullet}
+                                  </li>
+                                ))}
+                              </ul>
+                            </div>
+                          ))}
+                        </div>
+                      </InsightCard>
+                    )}
+
+                    {/* Economic & Policy Signals */}
+                    {structuredInsights.policySignals.bullets.length > 0 && (
+                      <InsightCard
+                        title="Economic & Policy Signals"
+                        summary={structuredInsights.policySignals.summary}
+                      >
+                        <ul className="space-y-2 pt-3">
+                          {structuredInsights.policySignals.bullets.map((bullet, i) => (
+                            <li
+                              key={i}
+                              className="text-sm flex items-start gap-2"
+                              style={{ color: 'var(--color-text-secondary)' }}
+                            >
+                              <span style={{ color: 'var(--color-accent)' }}>•</span>
+                              {bullet}
+                            </li>
+                          ))}
+                        </ul>
+                      </InsightCard>
+                    )}
+                  </>
+                ) : isLegacyInsights ? (
+                  /* Legacy Insights - Single card with markdown */
+                  <InsightCard
+                    title="Key Insights"
+                    summary="View the key insights from this week's articles"
+                    defaultExpanded={true}
+                  >
+                    <div className="pt-3">
+                      <MarkdownRenderer content={aggregation.insights!} />
+                    </div>
+                  </InsightCard>
+                ) : (
+                  <p
+                    className="text-sm"
+                    style={{ color: 'var(--color-text-muted)' }}
+                  >
+                    No insights available for this aggregation.
+                  </p>
+                )}
+              </div>
             </div>
           </div>
 
-          {/* Insights Card */}
-          {aggregation.insights && (
-            <div
-              className="rounded-xl border-l-4 p-6 sm:p-8"
-              style={{
-                backgroundColor: 'var(--color-bg-accent-subtle)',
-                borderLeftColor: 'var(--color-accent)',
-              }}
-            >
-              <h2
-                className="text-lg font-medium mb-6"
-                style={{ color: 'var(--color-text-primary)' }}
-              >
-                Key Insights
-              </h2>
-              <MarkdownRenderer content={aggregation.insights} />
-            </div>
-          )}
-
           {/* Article Count - Footer style */}
           <div
-            className="flex items-center justify-between pt-6 border-t"
+            className="flex items-center justify-between pt-6 mt-8 border-t"
             style={{ borderColor: 'var(--color-border)' }}
           >
             <p

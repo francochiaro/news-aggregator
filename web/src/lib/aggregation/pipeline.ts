@@ -3,6 +3,7 @@ import { getArticlesByDateRange, insertAggregation, updateArticleContent, Aggreg
 import { deduplicateArticles, quickDeduplicateByUrl } from '../ai/dedup';
 import { summarizeArticles } from '../ai/summarize';
 import { detectThemesAndInsights } from '../ai/themes';
+import { generateStructuredInsights } from '../ai/insights';
 import { scrapeArticle } from '../scraper';
 
 export interface AggregationProgress {
@@ -88,13 +89,18 @@ export async function runAggregationPipeline(
   const summaryResult = await summarizeArticles(articles);
   report('Summarizing', 80, 'Summary generated');
 
-  // Step 8: Detect themes
-  report('Analyzing themes', 85, 'Detecting themes and insights...');
+  // Step 8: Detect themes (for database linking)
+  report('Analyzing themes', 82, 'Detecting themes...');
   const themesResult = await detectThemesAndInsights(articles);
-  report('Analyzing themes', 90, `Found ${themesResult.themes.length} themes`);
+  report('Analyzing themes', 85, `Found ${themesResult.themes.length} themes`);
 
-  // Step 9: Format insights
-  const insightsText = formatInsights(themesResult);
+  // Step 9: Generate structured insights with tailored prompts
+  report('Generating insights', 87, 'Generating structured insights...');
+  const structuredInsights = await generateStructuredInsights(articles);
+  report('Generating insights', 92, 'Insights generated');
+
+  // Store as JSON string
+  const insightsText = JSON.stringify(structuredInsights);
 
   // Step 10: Save aggregation to database
   report('Saving', 95, 'Saving aggregation...');
