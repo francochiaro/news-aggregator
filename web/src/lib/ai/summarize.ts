@@ -67,11 +67,12 @@ async function summarizeChunk(text: string): Promise<string> {
 Create a concise summary of the key information from these articles.
 Focus on the most important facts and developments.
 Use only the information provided - do not add external knowledge.
+Write in plain prose - do NOT use markdown formatting (no **, no ##).
 
 Articles:
 ${text}
 
-Provide a clear, informative summary:`;
+Provide a clear, informative summary in plain text:`;
 
   const response = await createChatCompletion([
     { role: 'system', content: 'You are a helpful assistant that summarizes news articles accurately and concisely.' },
@@ -88,7 +89,11 @@ async function generateSummary(text: string, articleCount: number): Promise<{ su
   const prompt = `You are summarizing ${articleCount} tech/business news articles from TL;DR newsletters.
 Create a comprehensive summary that captures the most important information.
 
-IMPORTANT: Only use information from the provided articles. Do not add external knowledge or speculation.
+IMPORTANT RULES:
+- Only use information from the provided articles
+- Do not add external knowledge or speculation
+- Write in plain prose - do NOT use markdown formatting (no **, no ##, no bullet points in the summary)
+- The summary should be readable narrative text, not formatted
 
 Articles:
 ${text}
@@ -96,7 +101,7 @@ ${text}
 Provide your response in this format:
 
 SUMMARY:
-[A 2-3 paragraph summary of the key news and developments]
+[A 2-3 paragraph summary in plain prose - no markdown, no bold, no headers]
 
 KEY POINTS:
 - [Key point 1]
@@ -121,13 +126,15 @@ async function combineSummaries(summaries: string[], totalArticles: number): Pro
   const prompt = `You have multiple partial summaries from ${totalArticles} tech/business news articles.
 Combine these into one coherent, comprehensive summary.
 
+IMPORTANT: Write in plain prose - do NOT use markdown formatting (no **, no ##, no bullet points in the summary).
+
 Partial summaries:
 ${combinedSummaries}
 
 Provide your response in this format:
 
 SUMMARY:
-[A 2-3 paragraph unified summary of all the key news and developments]
+[A 2-3 paragraph unified summary in plain prose - no markdown, no bold, no headers]
 
 KEY POINTS:
 - [Key point 1]
@@ -150,7 +157,10 @@ function parseSummaryResponse(response: string): { summary: string; keyPoints: s
   const summaryMatch = response.match(/SUMMARY:\s*([\s\S]*?)(?=KEY POINTS:|$)/i);
   const keyPointsMatch = response.match(/KEY POINTS:\s*([\s\S]*?)$/i);
 
-  const summary = summaryMatch?.[1]?.trim() || response;
+  let summary = summaryMatch?.[1]?.trim() || response;
+
+  // Clean up any stray markdown formatting that might have snuck through
+  summary = cleanMarkdownFromSummary(summary);
 
   const keyPointsText = keyPointsMatch?.[1]?.trim() || '';
   const keyPoints = keyPointsText
@@ -159,4 +169,21 @@ function parseSummaryResponse(response: string): { summary: string; keyPoints: s
     .filter(line => line.length > 0);
 
   return { summary, keyPoints };
+}
+
+/**
+ * Remove markdown formatting from summary text
+ */
+function cleanMarkdownFromSummary(text: string): string {
+  return text
+    // Remove bold markers (** or __)
+    .replace(/\*\*([^*]+)\*\*/g, '$1')
+    .replace(/__([^_]+)__/g, '$1')
+    // Remove italic markers (* or _) - be careful not to remove list items
+    .replace(/(?<!\*)\*([^*]+)\*(?!\*)/g, '$1')
+    // Remove headers
+    .replace(/^#{1,6}\s+/gm, '')
+    // Clean up any double spaces
+    .replace(/  +/g, ' ')
+    .trim();
 }
