@@ -41,10 +41,9 @@ export async function POST(request: NextRequest) {
 
 CRITICAL RULES:
 1. ONLY use information from the provided articles below
-2. If the information is not in the articles, clearly say "I cannot find information about that in the current articles"
-3. Never make up or infer information not explicitly stated
-4. When referencing information, mention which article it comes from (e.g., "According to article [3]...")
-5. Be concise and direct in your answers
+2. Never make up or infer information not explicitly stated
+3. When referencing information, mention which article it comes from (e.g., "According to article [3]...")
+4. Be concise and direct in your answers
 
 ARTICLES FOR REFERENCE:
 ${articleContext}`;
