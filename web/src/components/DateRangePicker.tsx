@@ -21,12 +21,27 @@ export default function DateRangePicker({ onGenerate, onCancel, disabled }: Date
   };
 
   return (
-    <div className="bg-white rounded-xl shadow-sm border p-6">
-      <h3 className="text-lg font-semibold text-gray-900 mb-4">Custom Date Range</h3>
+    <div
+      className="rounded-xl border p-6"
+      style={{
+        backgroundColor: 'var(--color-bg-secondary)',
+        borderColor: 'var(--color-border)',
+      }}
+    >
+      <h3
+        className="text-base font-medium mb-4"
+        style={{ color: 'var(--color-text-primary)' }}
+      >
+        Custom Date Range
+      </h3>
 
       <form onSubmit={handleSubmit} className="flex flex-wrap items-end gap-4">
         <div>
-          <label htmlFor="startDate" className="block text-sm font-medium text-gray-700 mb-1">
+          <label
+            htmlFor="startDate"
+            className="block text-sm mb-1.5"
+            style={{ color: 'var(--color-text-muted)' }}
+          >
             Start Date
           </label>
           <input
@@ -35,13 +50,30 @@ export default function DateRangePicker({ onGenerate, onCancel, disabled }: Date
             value={startDate}
             onChange={(e) => setStartDate(e.target.value)}
             max={endDate}
-            className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            className="px-3 py-2 text-sm rounded-lg border outline-none transition-colors"
+            style={{
+              borderColor: 'var(--color-border)',
+              backgroundColor: 'var(--color-bg-secondary)',
+              color: 'var(--color-text-primary)',
+            }}
+            onFocus={(e) => {
+              e.currentTarget.style.borderColor = 'var(--color-accent)';
+              e.currentTarget.style.boxShadow = '0 0 0 2px var(--color-bg-accent-subtle)';
+            }}
+            onBlur={(e) => {
+              e.currentTarget.style.borderColor = 'var(--color-border)';
+              e.currentTarget.style.boxShadow = 'none';
+            }}
             disabled={disabled}
           />
         </div>
 
         <div>
-          <label htmlFor="endDate" className="block text-sm font-medium text-gray-700 mb-1">
+          <label
+            htmlFor="endDate"
+            className="block text-sm mb-1.5"
+            style={{ color: 'var(--color-text-muted)' }}
+          >
             End Date
           </label>
           <input
@@ -51,7 +83,20 @@ export default function DateRangePicker({ onGenerate, onCancel, disabled }: Date
             onChange={(e) => setEndDate(e.target.value)}
             min={startDate}
             max={today}
-            className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            className="px-3 py-2 text-sm rounded-lg border outline-none transition-colors"
+            style={{
+              borderColor: 'var(--color-border)',
+              backgroundColor: 'var(--color-bg-secondary)',
+              color: 'var(--color-text-primary)',
+            }}
+            onFocus={(e) => {
+              e.currentTarget.style.borderColor = 'var(--color-accent)';
+              e.currentTarget.style.boxShadow = '0 0 0 2px var(--color-bg-accent-subtle)';
+            }}
+            onBlur={(e) => {
+              e.currentTarget.style.borderColor = 'var(--color-border)';
+              e.currentTarget.style.boxShadow = 'none';
+            }}
             disabled={disabled}
           />
         </div>
@@ -60,7 +105,16 @@ export default function DateRangePicker({ onGenerate, onCancel, disabled }: Date
           <button
             type="submit"
             disabled={disabled}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            className="px-4 py-2 text-sm font-medium text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            style={{ backgroundColor: 'var(--color-accent)' }}
+            onMouseEnter={(e) => {
+              if (!disabled) {
+                e.currentTarget.style.backgroundColor = 'var(--color-accent-hover)';
+              }
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = 'var(--color-accent)';
+            }}
           >
             Generate
           </button>
@@ -68,7 +122,19 @@ export default function DateRangePicker({ onGenerate, onCancel, disabled }: Date
             type="button"
             onClick={onCancel}
             disabled={disabled}
-            className="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 disabled:opacity-50 transition-colors"
+            className="px-4 py-2 text-sm font-medium rounded-lg transition-colors disabled:opacity-50"
+            style={{
+              color: 'var(--color-text-secondary)',
+              backgroundColor: 'transparent',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = 'var(--color-bg-tertiary)';
+              e.currentTarget.style.color = 'var(--color-text-primary)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = 'transparent';
+              e.currentTarget.style.color = 'var(--color-text-secondary)';
+            }}
           >
             Cancel
           </button>
