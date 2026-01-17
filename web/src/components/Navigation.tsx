@@ -14,26 +14,54 @@ export default function Navigation() {
   ];
 
   return (
-    <nav className="bg-white shadow-sm border-b">
-      <div className="container mx-auto px-4">
+    <nav
+      className="border-b"
+      style={{
+        backgroundColor: 'var(--color-bg-secondary)',
+        borderColor: 'var(--color-border)'
+      }}
+    >
+      <div className="max-w-4xl mx-auto px-4 sm:px-6">
         <div className="flex items-center justify-between h-16">
-          <div className="flex items-center space-x-2">
-            <span className="text-2xl">📰</span>
-            <span className="font-bold text-xl text-gray-900">Newsletter Aggregator</span>
-          </div>
+          <Link href="/" className="flex items-center">
+            <span
+              className="font-semibold text-lg tracking-tight"
+              style={{ color: 'var(--color-text-primary)' }}
+            >
+              Newsletter Aggregator
+            </span>
+          </Link>
 
-          <div className="flex space-x-1">
+          <div className="flex items-center gap-1">
             {navItems.map((item) => {
               const isActive = pathname === item.href;
               return (
                 <Link
                   key={item.href}
                   href={item.href}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                    isActive
-                      ? 'bg-blue-100 text-blue-700'
-                      : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
+                  className={`px-3 py-2 text-sm transition-colors rounded-md ${
+                    isActive ? 'font-semibold' : 'font-medium'
                   }`}
+                  style={{
+                    color: isActive
+                      ? 'var(--color-accent)'
+                      : 'var(--color-text-secondary)',
+                    backgroundColor: isActive
+                      ? 'var(--color-bg-accent-subtle)'
+                      : 'transparent',
+                  }}
+                  onMouseEnter={(e) => {
+                    if (!isActive) {
+                      e.currentTarget.style.backgroundColor = 'var(--color-bg-tertiary)';
+                      e.currentTarget.style.color = 'var(--color-text-primary)';
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (!isActive) {
+                      e.currentTarget.style.backgroundColor = 'transparent';
+                      e.currentTarget.style.color = 'var(--color-text-secondary)';
+                    }
+                  }}
                 >
                   {item.label}
                 </Link>

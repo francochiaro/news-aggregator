@@ -61,15 +61,26 @@ export default function ArticlesPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
-        <div className="text-gray-500">Loading articles...</div>
+        <div
+          className="text-sm"
+          style={{ color: 'var(--color-text-muted)' }}
+        >
+          Loading articles...
+        </div>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="max-w-4xl mx-auto">
-        <div className="p-4 bg-red-50 border border-red-200 rounded-lg text-red-700">
+      <div>
+        <div
+          className="px-4 py-3 rounded-lg text-sm"
+          style={{
+            backgroundColor: 'var(--color-error-bg)',
+            color: 'var(--color-error)',
+          }}
+        >
           {error}
         </div>
       </div>
@@ -77,19 +88,41 @@ export default function ArticlesPage() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">Articles</h1>
-        <p className="text-gray-600 mt-1">
+    <div>
+      {/* Page Header */}
+      <div className="mb-12">
+        <h1
+          className="text-4xl font-bold tracking-tight"
+          style={{ color: 'var(--color-text-primary)' }}
+        >
+          Articles
+        </h1>
+        <p
+          className="mt-2 text-base"
+          style={{ color: 'var(--color-text-secondary)' }}
+        >
           {articles.length} articles from your newsletters
         </p>
       </div>
 
       {articles.length === 0 ? (
-        <div className="bg-white rounded-xl shadow-sm border p-8 text-center">
-          <div className="text-6xl mb-4">📰</div>
-          <h2 className="text-xl font-semibold text-gray-900 mb-2">No articles yet</h2>
-          <p className="text-gray-600">
+        <div
+          className="rounded-xl border py-16 px-8 text-center"
+          style={{
+            backgroundColor: 'var(--color-bg-secondary)',
+            borderColor: 'var(--color-border)',
+          }}
+        >
+          <h2
+            className="text-xl font-semibold mb-2"
+            style={{ color: 'var(--color-text-primary)' }}
+          >
+            No articles yet
+          </h2>
+          <p
+            className="max-w-sm mx-auto"
+            style={{ color: 'var(--color-text-secondary)' }}
+          >
             Generate an aggregation to fetch articles from your newsletters.
           </p>
         </div>

@@ -44,25 +44,66 @@ export default function SettingsPage() {
 
   return (
     <div className="max-w-2xl mx-auto">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">Settings</h1>
-        <p className="text-gray-600 mt-1">Manage your connections and preferences</p>
+      {/* Page Header */}
+      <div className="mb-12">
+        <h1
+          className="text-4xl font-bold tracking-tight"
+          style={{ color: 'var(--color-text-primary)' }}
+        >
+          Settings
+        </h1>
+        <p
+          className="mt-2 text-base"
+          style={{ color: 'var(--color-text-secondary)' }}
+        >
+          Manage your connections and preferences
+        </p>
       </div>
 
       {/* Gmail Connection */}
-      <div className="bg-white rounded-xl shadow-sm border p-6 mb-6">
-        <h2 className="text-xl font-semibold text-gray-900 mb-4">Gmail Connection</h2>
+      <div
+        className="rounded-xl border p-6 mb-6"
+        style={{
+          backgroundColor: 'var(--color-bg-secondary)',
+          borderColor: 'var(--color-border)',
+        }}
+      >
+        <h2
+          className="text-lg font-medium mb-4"
+          style={{ color: 'var(--color-text-primary)' }}
+        >
+          Gmail Connection
+        </h2>
 
         {loading ? (
-          <div className="text-gray-500">Checking connection status...</div>
+          <div
+            className="text-sm"
+            style={{ color: 'var(--color-text-muted)' }}
+          >
+            Checking connection status...
+          </div>
         ) : authStatus?.authenticated ? (
           <div className="space-y-4">
-            <div className="flex items-center gap-3 p-4 bg-green-50 rounded-lg">
-              <div className="h-3 w-3 bg-green-500 rounded-full"></div>
+            <div
+              className="flex items-center gap-3 px-4 py-3 rounded-lg"
+              style={{ backgroundColor: 'var(--color-success-bg)' }}
+            >
+              <div
+                className="h-2 w-2 rounded-full"
+                style={{ backgroundColor: 'var(--color-success)' }}
+              />
               <div>
-                <p className="font-medium text-green-800">Connected to Gmail</p>
+                <p
+                  className="text-sm font-medium"
+                  style={{ color: 'var(--color-success)' }}
+                >
+                  Connected to Gmail
+                </p>
                 {authStatus.expiresAt && (
-                  <p className="text-sm text-green-600">
+                  <p
+                    className="text-xs mt-0.5"
+                    style={{ color: 'var(--color-text-muted)' }}
+                  >
                     Token valid until {new Date(authStatus.expiresAt).toLocaleString()}
                   </p>
                 )}
@@ -72,18 +113,43 @@ export default function SettingsPage() {
             <button
               onClick={handleLogout}
               disabled={loggingOut}
-              className="px-4 py-2 text-red-600 border border-red-300 rounded-lg hover:bg-red-50 disabled:opacity-50 transition-colors"
+              className="px-4 py-2 text-sm font-medium rounded-lg border transition-colors disabled:opacity-50"
+              style={{
+                color: 'var(--color-error)',
+                borderColor: 'var(--color-error)',
+                backgroundColor: 'transparent',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = 'var(--color-error-bg)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = 'transparent';
+              }}
             >
               {loggingOut ? 'Disconnecting...' : 'Disconnect Gmail'}
             </button>
           </div>
         ) : (
           <div className="space-y-4">
-            <div className="flex items-center gap-3 p-4 bg-yellow-50 rounded-lg">
-              <div className="h-3 w-3 bg-yellow-500 rounded-full"></div>
+            <div
+              className="flex items-center gap-3 px-4 py-3 rounded-lg"
+              style={{ backgroundColor: 'var(--color-warning-bg)' }}
+            >
+              <div
+                className="h-2 w-2 rounded-full"
+                style={{ backgroundColor: 'var(--color-warning)' }}
+              />
               <div>
-                <p className="font-medium text-yellow-800">Not connected</p>
-                <p className="text-sm text-yellow-600">
+                <p
+                  className="text-sm font-medium"
+                  style={{ color: 'var(--color-warning)' }}
+                >
+                  Not connected
+                </p>
+                <p
+                  className="text-xs mt-0.5"
+                  style={{ color: 'var(--color-text-muted)' }}
+                >
                   Connect your Gmail to fetch TL;DR newsletters
                 </p>
               </div>
@@ -91,9 +157,16 @@ export default function SettingsPage() {
 
             <a
               href="/api/auth/login"
-              className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+              className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white rounded-lg transition-colors"
+              style={{ backgroundColor: 'var(--color-accent)' }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = 'var(--color-accent-hover)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = 'var(--color-accent)';
+              }}
             >
-              <svg className="h-5 w-5" viewBox="0 0 24 24">
+              <svg className="h-4 w-4" viewBox="0 0 24 24">
                 <path
                   fill="currentColor"
                   d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
@@ -118,16 +191,61 @@ export default function SettingsPage() {
       </div>
 
       {/* Setup Instructions */}
-      <div className="bg-white rounded-xl shadow-sm border p-6 mb-6">
-        <h2 className="text-xl font-semibold text-gray-900 mb-4">Setup Required</h2>
+      <div
+        className="rounded-xl border p-6 mb-6"
+        style={{
+          backgroundColor: 'var(--color-bg-secondary)',
+          borderColor: 'var(--color-border)',
+        }}
+      >
+        <h2
+          className="text-lg font-medium mb-4"
+          style={{ color: 'var(--color-text-primary)' }}
+        >
+          Setup Required
+        </h2>
 
-        <div className="space-y-4 text-gray-600">
-          <p>Before using the app, you need to configure the following:</p>
+        <div className="space-y-4">
+          <p
+            className="text-sm"
+            style={{ color: 'var(--color-text-secondary)' }}
+          >
+            Before using the app, you need to configure the following:
+          </p>
 
-          <div className="bg-gray-50 rounded-lg p-4">
-            <h3 className="font-medium text-gray-900 mb-2">1. Environment Variables</h3>
-            <p className="text-sm mb-2">Create a <code className="bg-gray-200 px-1 rounded">.env.local</code> file in the web directory with:</p>
-            <pre className="bg-gray-800 text-green-400 p-3 rounded text-sm overflow-x-auto">
+          <div
+            className="rounded-lg p-4"
+            style={{ backgroundColor: 'var(--color-bg-tertiary)' }}
+          >
+            <h3
+              className="text-sm font-medium mb-2"
+              style={{ color: 'var(--color-text-primary)' }}
+            >
+              1. Environment Variables
+            </h3>
+            <p
+              className="text-sm mb-3"
+              style={{ color: 'var(--color-text-secondary)' }}
+            >
+              Create a{' '}
+              <code
+                className="px-1.5 py-0.5 rounded text-xs"
+                style={{
+                  backgroundColor: 'var(--color-border)',
+                  color: 'var(--color-text-primary)',
+                }}
+              >
+                .env.local
+              </code>{' '}
+              file in the web directory with:
+            </p>
+            <pre
+              className="p-3 rounded text-xs overflow-x-auto"
+              style={{
+                backgroundColor: 'var(--color-text-primary)',
+                color: 'var(--color-success)',
+              }}
+            >
 {`OPENAI_API_KEY=your_openai_key
 GOOGLE_CLIENT_ID=your_client_id
 GOOGLE_CLIENT_SECRET=your_client_secret
@@ -135,34 +253,114 @@ GOOGLE_REDIRECT_URI=http://localhost:3000/api/auth/callback`}
             </pre>
           </div>
 
-          <div className="bg-gray-50 rounded-lg p-4">
-            <h3 className="font-medium text-gray-900 mb-2">2. Google Cloud Console</h3>
-            <ol className="text-sm list-decimal list-inside space-y-1">
+          <div
+            className="rounded-lg p-4"
+            style={{ backgroundColor: 'var(--color-bg-tertiary)' }}
+          >
+            <h3
+              className="text-sm font-medium mb-2"
+              style={{ color: 'var(--color-text-primary)' }}
+            >
+              2. Google Cloud Console
+            </h3>
+            <ol
+              className="text-sm list-decimal list-inside space-y-1"
+              style={{ color: 'var(--color-text-secondary)' }}
+            >
               <li>Go to Google Cloud Console</li>
               <li>Create a new project or select existing</li>
               <li>Enable the Gmail API</li>
               <li>Create OAuth 2.0 credentials (Web application)</li>
-              <li>Add <code className="bg-gray-200 px-1 rounded">http://localhost:3000</code> to authorized origins</li>
-              <li>Add <code className="bg-gray-200 px-1 rounded">http://localhost:3000/api/auth/callback</code> to redirect URIs</li>
+              <li>
+                Add{' '}
+                <code
+                  className="px-1 py-0.5 rounded text-xs"
+                  style={{
+                    backgroundColor: 'var(--color-border)',
+                    color: 'var(--color-text-primary)',
+                  }}
+                >
+                  http://localhost:3000
+                </code>{' '}
+                to authorized origins
+              </li>
+              <li>
+                Add{' '}
+                <code
+                  className="px-1 py-0.5 rounded text-xs"
+                  style={{
+                    backgroundColor: 'var(--color-border)',
+                    color: 'var(--color-text-primary)',
+                  }}
+                >
+                  http://localhost:3000/api/auth/callback
+                </code>{' '}
+                to redirect URIs
+              </li>
             </ol>
           </div>
 
-          <div className="bg-gray-50 rounded-lg p-4">
-            <h3 className="font-medium text-gray-900 mb-2">3. OpenAI API Key</h3>
-            <p className="text-sm">Get your API key from <a href="https://platform.openai.com/api-keys" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">OpenAI Platform</a></p>
+          <div
+            className="rounded-lg p-4"
+            style={{ backgroundColor: 'var(--color-bg-tertiary)' }}
+          >
+            <h3
+              className="text-sm font-medium mb-2"
+              style={{ color: 'var(--color-text-primary)' }}
+            >
+              3. OpenAI API Key
+            </h3>
+            <p
+              className="text-sm"
+              style={{ color: 'var(--color-text-secondary)' }}
+            >
+              Get your API key from{' '}
+              <a
+                href="https://platform.openai.com/api-keys"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="transition-colors"
+                style={{ color: 'var(--color-accent)' }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.color = 'var(--color-accent-hover)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.color = 'var(--color-accent)';
+                }}
+              >
+                OpenAI Platform
+              </a>
+            </p>
           </div>
         </div>
       </div>
 
       {/* About */}
-      <div className="bg-white rounded-xl shadow-sm border p-6">
-        <h2 className="text-xl font-semibold text-gray-900 mb-4">About</h2>
-        <p className="text-gray-600">
+      <div
+        className="rounded-xl border p-6"
+        style={{
+          backgroundColor: 'var(--color-bg-secondary)',
+          borderColor: 'var(--color-border)',
+        }}
+      >
+        <h2
+          className="text-lg font-medium mb-4"
+          style={{ color: 'var(--color-text-primary)' }}
+        >
+          About
+        </h2>
+        <p
+          className="text-sm leading-relaxed"
+          style={{ color: 'var(--color-text-secondary)' }}
+        >
           Newsletter Aggregator helps you stay on top of your TL;DR newsletters by
           automatically fetching, summarizing, and organizing articles with AI-powered
           insights.
         </p>
-        <p className="text-gray-500 text-sm mt-4">
+        <p
+          className="text-xs mt-4"
+          style={{ color: 'var(--color-text-muted)' }}
+        >
           Version 1.0 - Local-first MVP
         </p>
       </div>

@@ -24,40 +24,83 @@ export default function ArticleCard({ article, onFeedback }: ArticleCardProps) {
   };
 
   return (
-    <div className="bg-white rounded-xl shadow-sm border p-6 hover:shadow-md transition-shadow">
-      <div className="flex justify-between items-start gap-4">
-        <div className="flex-1">
+    <div
+      className="rounded-xl border p-6 transition-colors"
+      style={{
+        backgroundColor: 'var(--color-bg-secondary)',
+        borderColor: 'var(--color-border)',
+      }}
+      onMouseEnter={(e) => {
+        e.currentTarget.style.backgroundColor = 'var(--color-bg-tertiary)';
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.backgroundColor = 'var(--color-bg-secondary)';
+      }}
+    >
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4">
+        <div className="flex-1 min-w-0">
           <a
             href={article.source_url}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-lg font-semibold text-gray-900 hover:text-blue-600 transition-colors"
+            className="text-base font-medium transition-colors inline-flex items-center gap-1"
+            style={{ color: 'var(--color-text-primary)' }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.color = 'var(--color-accent)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.color = 'var(--color-text-primary)';
+            }}
           >
-            {article.title}
-            <span className="ml-2 text-gray-400">↗</span>
+            <span className="line-clamp-2">{article.title}</span>
+            <span style={{ color: 'var(--color-text-muted)' }}>↗</span>
           </a>
 
-          <p className="text-gray-600 mt-2 line-clamp-3">{article.summary}</p>
+          <p
+            className="mt-2 text-sm leading-relaxed line-clamp-3"
+            style={{ color: 'var(--color-text-secondary)' }}
+          >
+            {article.summary}
+          </p>
 
-          <div className="mt-3 text-sm text-gray-400">
+          <div
+            className="mt-3 text-xs"
+            style={{ color: 'var(--color-text-muted)' }}
+          >
             {formatDate(article.newsletter_date)}
           </div>
         </div>
 
         {/* Feedback Buttons */}
-        <div className="flex flex-col gap-2">
+        <div className="flex sm:flex-col gap-2 sm:gap-1.5 flex-shrink-0">
           <button
             onClick={() => onFeedback(article.id, true)}
-            className={`p-2 rounded-lg transition-colors ${
-              article.feedback?.isRelevant === true
-                ? 'bg-green-100 text-green-600'
-                : 'bg-gray-100 text-gray-400 hover:bg-green-50 hover:text-green-600'
-            }`}
+            className="p-2 rounded-lg transition-colors"
+            style={{
+              backgroundColor: article.feedback?.isRelevant === true
+                ? 'var(--color-success-bg)'
+                : 'transparent',
+              color: article.feedback?.isRelevant === true
+                ? 'var(--color-success)'
+                : 'var(--color-text-muted)',
+            }}
+            onMouseEnter={(e) => {
+              if (article.feedback?.isRelevant !== true) {
+                e.currentTarget.style.backgroundColor = 'var(--color-success-bg)';
+                e.currentTarget.style.color = 'var(--color-success)';
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (article.feedback?.isRelevant !== true) {
+                e.currentTarget.style.backgroundColor = 'transparent';
+                e.currentTarget.style.color = 'var(--color-text-muted)';
+              }
+            }}
             title="Mark as relevant"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
-              className="h-5 w-5"
+              className="h-4 w-4"
               viewBox="0 0 20 20"
               fill="currentColor"
             >
@@ -67,16 +110,32 @@ export default function ArticleCard({ article, onFeedback }: ArticleCardProps) {
 
           <button
             onClick={() => onFeedback(article.id, false)}
-            className={`p-2 rounded-lg transition-colors ${
-              article.feedback?.isRelevant === false
-                ? 'bg-red-100 text-red-600'
-                : 'bg-gray-100 text-gray-400 hover:bg-red-50 hover:text-red-600'
-            }`}
+            className="p-2 rounded-lg transition-colors"
+            style={{
+              backgroundColor: article.feedback?.isRelevant === false
+                ? 'var(--color-error-bg)'
+                : 'transparent',
+              color: article.feedback?.isRelevant === false
+                ? 'var(--color-error)'
+                : 'var(--color-text-muted)',
+            }}
+            onMouseEnter={(e) => {
+              if (article.feedback?.isRelevant !== false) {
+                e.currentTarget.style.backgroundColor = 'var(--color-error-bg)';
+                e.currentTarget.style.color = 'var(--color-error)';
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (article.feedback?.isRelevant !== false) {
+                e.currentTarget.style.backgroundColor = 'transparent';
+                e.currentTarget.style.color = 'var(--color-text-muted)';
+              }
+            }}
             title="Mark as not relevant"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
-              className="h-5 w-5"
+              className="h-4 w-4"
               viewBox="0 0 20 20"
               fill="currentColor"
             >

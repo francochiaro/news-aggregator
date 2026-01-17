@@ -1,0 +1,329 @@
+{
+  "project": "NewsletterAggregator",
+  "branchName": "ralph/ui-revamp-polish",
+  "description": "UI/UX Polish Pass - Visual refinement to make the product feel calm, credible, and premium. No new features, no functionality changes. Focus on typography, spacing, color, and hierarchy.",
+  "userStories": [
+    {
+      "id": "US-001",
+      "title": "Establish design tokens and color palette in globals.css",
+      "description": "As a user, I want a cohesive visual foundation so the app feels intentional and premium.",
+      "acceptanceCriteria": [
+        "Remove dark mode media query - app is light mode only",
+        "Add CSS custom properties for new color palette: --color-bg-primary (warm off-white #fafaf9 or similar), --color-bg-secondary (soft gray for cards), --color-text-primary (charcoal #1f1f1f), --color-text-secondary (cool gray #6b6b6b), --color-text-muted (#9ca3af), --color-accent (muted indigo #4f46e5 or slate blue), --color-border (subtle #e5e5e5)",
+        "Add typography scale custom properties: --font-size-xs, --font-size-sm, --font-size-base, --font-size-lg, --font-size-xl, --font-size-2xl, --font-size-3xl",
+        "Add spacing scale custom properties: --space-1 through --space-12",
+        "Typecheck passes"
+      ],
+      "priority": 1,
+      "passes": false,
+      "notes": "Foundation layer - all other stories depend on these tokens"
+    },
+    {
+      "id": "US-002",
+      "title": "Update layout.tsx with new background and container styling",
+      "description": "As a user, I want the app background to feel warm and readable, not harsh.",
+      "acceptanceCriteria": [
+        "Change body background from bg-gray-50 to use the new warm off-white color token",
+        "Ensure main container has appropriate max-width for readability (max-w-4xl or similar)",
+        "Add more vertical padding to main content area (py-12 instead of py-8)",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 2,
+      "passes": false,
+      "notes": "Depends on US-001 for color tokens"
+    },
+    {
+      "id": "US-003",
+      "title": "Redesign Navigation component with stronger hierarchy",
+      "description": "As a user, I want the navigation to feel intentional and clearly show where I am.",
+      "acceptanceCriteria": [
+        "Remove shadow-sm from nav, use subtle bottom border only (border-b with light gray)",
+        "Increase nav height slightly for more breathing room (h-16 to h-18 or similar)",
+        "Make active tab state more prominent: use font-semibold, accent color text, and subtle background or underline",
+        "Inactive tabs should be clearly secondary (lighter text, no background)",
+        "Logo/brand area should have appropriate spacing from nav items",
+        "Remove emoji from logo, use text-only or simple icon",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 3,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-004",
+      "title": "Improve Summary page header with clear visual entry point",
+      "description": "As a user, I want to immediately understand where I am and what I can do.",
+      "acceptanceCriteria": [
+        "Page title 'Weekly Summary' should be larger and bolder (text-4xl font-bold)",
+        "Subtitle should have more contrast from title (use text-secondary color, smaller size)",
+        "Add more vertical space between header and content (mb-12 instead of mb-8)",
+        "Create clear visual separation between header area and action buttons",
+        "Primary button (Generate Weekly) should be clearly primary - solid accent color, prominent",
+        "Secondary button (Custom Range) should be clearly secondary - ghost/outline style, muted",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 4,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-005",
+      "title": "Redesign Summary page date range meta card",
+      "description": "As a user, I want to see the date context without it competing with the main content.",
+      "acceptanceCriteria": [
+        "Remove heavy shadow from date range card",
+        "Make card background subtle - use slightly different shade or no background",
+        "Use smaller, muted typography for date information",
+        "Add subtle left border accent or use pill/tag styling instead of full card",
+        "Remove emoji, use minimal iconography or none",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 5,
+      "passes": false,
+      "notes": "Meta info should feel secondary to narrative content"
+    },
+    {
+      "id": "US-006",
+      "title": "Redesign Summary page main summary card for reading",
+      "description": "As a user, I want the summary text to be comfortable to read without fatigue.",
+      "acceptanceCriteria": [
+        "Reduce or remove card shadow - use subtle border only",
+        "Increase line-height for paragraph text (leading-relaxed or leading-7)",
+        "Constrain paragraph max-width for optimal reading (max-w-prose or ~65ch)",
+        "Add more padding inside the card (p-8 instead of p-6)",
+        "Increase space between paragraphs (mb-4 instead of mb-3)",
+        "Section heading 'Summary' should be distinct but not overpowering (text-lg font-medium, not text-xl font-semibold)",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 6,
+      "passes": false,
+      "notes": "This is the main content - optimize for reading comfort"
+    },
+    {
+      "id": "US-007",
+      "title": "Redesign Summary page insights card with visual differentiation",
+      "description": "As a user, I want insights to feel analytically distinct from the narrative summary.",
+      "acceptanceCriteria": [
+        "Keep subtle background tint but reduce intensity (very light accent tint)",
+        "Remove heavy gradient, use flat subtle color",
+        "Add visual indicator that this is 'insights' - could be subtle icon, different border-left accent, or typography treatment",
+        "Improve typography for list items - better spacing, clearer hierarchy",
+        "Section heading should be styled consistently with Summary section heading",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 7,
+      "passes": false,
+      "notes": "Should feel distinct from Summary but not compete for attention"
+    },
+    {
+      "id": "US-008",
+      "title": "Redesign Summary page articles count section",
+      "description": "As a user, I want the article count to feel like helpful context, not a competing card.",
+      "acceptanceCriteria": [
+        "Reduce visual weight - smaller card or inline with less prominence",
+        "Remove shadow, use subtle border or no border",
+        "Make 'View All' link subtle but accessible (text link, not button-like)",
+        "Consider making this a footer-style element rather than a card",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 8,
+      "passes": false,
+      "notes": "Should feel like helpful navigation, not a content section"
+    },
+    {
+      "id": "US-009",
+      "title": "Improve Summary page empty state design",
+      "description": "As a user, I want the empty state to feel calm and helpful, not stark.",
+      "acceptanceCriteria": [
+        "Remove large emoji, use subtle illustration or minimal icon",
+        "Reduce visual weight of empty state container",
+        "Improve typography hierarchy - clearer heading, supportive subtext",
+        "CTA button should be primary but not overwhelming",
+        "Add appropriate whitespace around empty state",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 9,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-010",
+      "title": "Improve Summary page loading and error states",
+      "description": "As a user, I want loading and error states to feel consistent with the refined design.",
+      "acceptanceCriteria": [
+        "Loading state should use muted colors, subtle spinner",
+        "Generating state banner should be less prominent - use muted colors, smaller text",
+        "Error state should be clear but not alarming - red tint not harsh red",
+        "Remove harsh borders from alert states",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 10,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-011",
+      "title": "Redesign DateRangePicker component",
+      "description": "As a user, I want the date picker to feel integrated and not visually heavy.",
+      "acceptanceCriteria": [
+        "Remove heavy shadow from picker card",
+        "Use consistent button hierarchy - Generate is primary, Cancel is secondary/ghost",
+        "Improve form layout spacing",
+        "Labels should use muted text color",
+        "Input fields should have subtle borders, focus states using accent color",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 11,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-012",
+      "title": "Improve Articles page header and layout",
+      "description": "As a user, I want the articles page to feel consistent with the refined Summary page.",
+      "acceptanceCriteria": [
+        "Page title should use same styling as Summary page (text-4xl font-bold)",
+        "Subtitle styling consistent with Summary page",
+        "Same vertical spacing pattern (mb-12 between header and content)",
+        "Empty state styled consistently with Summary page empty state",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 12,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-013",
+      "title": "Redesign ArticleCard component",
+      "description": "As a user, I want article cards to be readable and scannable without visual fatigue.",
+      "acceptanceCriteria": [
+        "Remove or reduce shadow - use subtle border only",
+        "Remove hover shadow effect - use subtle background color change instead",
+        "Increase line-height for summary text",
+        "Improve spacing between title, summary, and metadata",
+        "Article title link should use accent color on hover, not harsh blue",
+        "Date text should be more muted",
+        "Feedback buttons should be more subtle when inactive",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 13,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-014",
+      "title": "Improve Chat page header and layout",
+      "description": "As a user, I want the chat page header to feel consistent with other pages.",
+      "acceptanceCriteria": [
+        "Page title should use same styling as other pages (text-4xl font-bold)",
+        "Subtitle styling consistent with other pages",
+        "Same vertical spacing pattern",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 14,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-015",
+      "title": "Redesign Chat page message container and styling",
+      "description": "As a user, I want the chat interface to feel calm and readable.",
+      "acceptanceCriteria": [
+        "Chat container card should have subtle border, minimal or no shadow",
+        "Remove emoji from empty state, use minimal text",
+        "Suggested prompts should be more subtle - smaller text, muted styling",
+        "User messages should use accent color but not harsh saturated blue",
+        "Assistant messages should have very subtle background, good contrast",
+        "Message text should have good line-height for readability",
+        "Input field should have subtle border, accent color focus ring",
+        "Send button should be primary style consistent with other pages",
+        "Helper text at bottom should be more muted",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 15,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-016",
+      "title": "Improve Settings page typography and cards",
+      "description": "As a user, I want the settings page to feel consistent with the refined design.",
+      "acceptanceCriteria": [
+        "Page title should use same styling as other pages",
+        "All cards should use subtle border, minimal shadow",
+        "Section headings inside cards should be consistent (text-lg font-medium)",
+        "Status indicators should be subtle but clear",
+        "Code blocks should have softer styling (not harsh dark background)",
+        "Buttons should follow primary/secondary hierarchy",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 16,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-017",
+      "title": "Add mobile responsive improvements to Summary page",
+      "description": "As a user, I want to comfortably read summaries on my phone.",
+      "acceptanceCriteria": [
+        "Header section stacks vertically on mobile (title/buttons)",
+        "Buttons stack or adjust to full-width on small screens",
+        "Card padding reduces appropriately on mobile",
+        "Typography sizes adjust for mobile readability",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 17,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-018",
+      "title": "Add mobile responsive improvements to Articles and Chat pages",
+      "description": "As a user, I want articles and chat to work well on mobile devices.",
+      "acceptanceCriteria": [
+        "ArticleCard adapts to narrow screens - feedback buttons may move below content",
+        "Chat container height adjusts for mobile viewport",
+        "Chat messages have appropriate padding on mobile",
+        "Input area is usable on mobile",
+        "Navigation works on mobile (already horizontal, but verify spacing)",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 18,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-019",
+      "title": "Final polish pass - consistent spacing throughout",
+      "description": "As a user, I want the spacing between elements to feel rhythmic and intentional.",
+      "acceptanceCriteria": [
+        "Verify consistent vertical rhythm between all sections (use 8px grid: 8, 16, 24, 32, 48, 64)",
+        "Verify consistent horizontal padding in all containers",
+        "Verify consistent gap between cards/sections across all pages",
+        "Remove any remaining heavy shadows or harsh borders",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 19,
+      "passes": false,
+      "notes": "Final consistency check across all pages"
+    }
+  ]
+}

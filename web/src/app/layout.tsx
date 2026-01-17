@@ -26,10 +26,11 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-gray-50 min-h-screen`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen`}
+        style={{ backgroundColor: 'var(--color-bg-primary)' }}
       >
         <Navigation />
-        <main className="container mx-auto px-4 py-8">
+        <main className="max-w-4xl mx-auto px-4 sm:px-6 py-12">
           {children}
         </main>
       </body>

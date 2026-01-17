@@ -61,7 +61,7 @@ export default function ChatPage() {
         };
         setMessages((prev) => [...prev, errorMessage]);
       }
-    } catch (error) {
+    } catch {
       const errorMessage: Message = {
         id: Date.now() + 1,
         role: 'assistant',
@@ -74,42 +74,78 @@ export default function ChatPage() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">Chat</h1>
-        <p className="text-gray-600 mt-1">Ask questions about your newsletter articles</p>
+    <div>
+      {/* Page Header */}
+      <div className="mb-12">
+        <h1
+          className="text-4xl font-bold tracking-tight"
+          style={{ color: 'var(--color-text-primary)' }}
+        >
+          Chat
+        </h1>
+        <p
+          className="mt-2 text-base"
+          style={{ color: 'var(--color-text-secondary)' }}
+        >
+          Ask questions about your newsletter articles
+        </p>
       </div>
 
-      <div className="bg-white rounded-xl shadow-sm border flex flex-col h-[600px]">
+      <div
+        className="rounded-xl border flex flex-col h-[500px] sm:h-[600px]"
+        style={{
+          backgroundColor: 'var(--color-bg-secondary)',
+          borderColor: 'var(--color-border)',
+        }}
+      >
         {/* Messages Area */}
-        <div className="flex-1 overflow-y-auto p-4 space-y-4">
+        <div className="flex-1 overflow-y-auto p-6 space-y-4">
           {messages.length === 0 ? (
-            <div className="text-center text-gray-500 py-12">
-              <div className="text-5xl mb-4">💬</div>
-              <p className="mb-2">Ask me anything about your articles!</p>
-              <p className="text-sm">
-                I can only answer based on the articles in your latest aggregation.
+            <div className="text-center py-12">
+              <p
+                className="mb-1"
+                style={{ color: 'var(--color-text-secondary)' }}
+              >
+                Ask me anything about your articles
               </p>
-              <div className="mt-6 space-y-2 text-left max-w-md mx-auto">
-                <p className="text-sm font-medium text-gray-700">Try asking:</p>
-                <button
-                  onClick={() => setInput("What are the main topics covered this week?")}
-                  className="block w-full text-left px-4 py-2 bg-gray-50 rounded-lg text-sm text-gray-600 hover:bg-gray-100 transition-colors"
+              <p
+                className="text-sm mb-8"
+                style={{ color: 'var(--color-text-muted)' }}
+              >
+                Responses are based only on your latest aggregation
+              </p>
+              <div className="space-y-2 text-left max-w-md mx-auto">
+                <p
+                  className="text-xs font-medium mb-3"
+                  style={{ color: 'var(--color-text-muted)' }}
                 >
-                  "What are the main topics covered this week?"
-                </button>
-                <button
-                  onClick={() => setInput("Summarize the AI-related news")}
-                  className="block w-full text-left px-4 py-2 bg-gray-50 rounded-lg text-sm text-gray-600 hover:bg-gray-100 transition-colors"
-                >
-                  "Summarize the AI-related news"
-                </button>
-                <button
-                  onClick={() => setInput("What companies were mentioned?")}
-                  className="block w-full text-left px-4 py-2 bg-gray-50 rounded-lg text-sm text-gray-600 hover:bg-gray-100 transition-colors"
-                >
-                  "What companies were mentioned?"
-                </button>
+                  Try asking:
+                </p>
+                {[
+                  "What are the main topics covered this week?",
+                  "Summarize the AI-related news",
+                  "What companies were mentioned?",
+                ].map((suggestion) => (
+                  <button
+                    key={suggestion}
+                    onClick={() => setInput(suggestion)}
+                    className="block w-full text-left px-4 py-2.5 rounded-lg text-sm transition-colors"
+                    style={{
+                      backgroundColor: 'var(--color-bg-tertiary)',
+                      color: 'var(--color-text-secondary)',
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.backgroundColor = 'var(--color-border)';
+                      e.currentTarget.style.color = 'var(--color-text-primary)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.backgroundColor = 'var(--color-bg-tertiary)';
+                      e.currentTarget.style.color = 'var(--color-text-secondary)';
+                    }}
+                  >
+                    "{suggestion}"
+                  </button>
+                ))}
               </div>
             </div>
           ) : (
@@ -119,11 +155,15 @@ export default function ChatPage() {
                 className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
               >
                 <div
-                  className={`max-w-[80%] rounded-2xl px-4 py-3 ${
-                    message.role === 'user'
-                      ? 'bg-blue-600 text-white'
-                      : 'bg-gray-100 text-gray-800'
-                  }`}
+                  className="max-w-[80%] rounded-2xl px-4 py-3 text-sm leading-relaxed"
+                  style={{
+                    backgroundColor: message.role === 'user'
+                      ? 'var(--color-accent)'
+                      : 'var(--color-bg-tertiary)',
+                    color: message.role === 'user'
+                      ? '#ffffff'
+                      : 'var(--color-text-primary)',
+                  }}
                 >
                   <div className="whitespace-pre-wrap">{message.content}</div>
                 </div>
@@ -133,11 +173,23 @@ export default function ChatPage() {
 
           {loading && (
             <div className="flex justify-start">
-              <div className="bg-gray-100 rounded-2xl px-4 py-3">
-                <div className="flex items-center gap-2">
-                  <div className="animate-bounce h-2 w-2 bg-gray-400 rounded-full"></div>
-                  <div className="animate-bounce h-2 w-2 bg-gray-400 rounded-full" style={{ animationDelay: '0.1s' }}></div>
-                  <div className="animate-bounce h-2 w-2 bg-gray-400 rounded-full" style={{ animationDelay: '0.2s' }}></div>
+              <div
+                className="rounded-2xl px-4 py-3"
+                style={{ backgroundColor: 'var(--color-bg-tertiary)' }}
+              >
+                <div className="flex items-center gap-1.5">
+                  <div
+                    className="animate-bounce h-1.5 w-1.5 rounded-full"
+                    style={{ backgroundColor: 'var(--color-text-muted)' }}
+                  />
+                  <div
+                    className="animate-bounce h-1.5 w-1.5 rounded-full"
+                    style={{ backgroundColor: 'var(--color-text-muted)', animationDelay: '0.1s' }}
+                  />
+                  <div
+                    className="animate-bounce h-1.5 w-1.5 rounded-full"
+                    style={{ backgroundColor: 'var(--color-text-muted)', animationDelay: '0.2s' }}
+                  />
                 </div>
               </div>
             </div>
@@ -147,26 +199,55 @@ export default function ChatPage() {
         </div>
 
         {/* Input Area */}
-        <form onSubmit={sendMessage} className="border-t p-4">
+        <form
+          onSubmit={sendMessage}
+          className="border-t p-4"
+          style={{ borderColor: 'var(--color-border)' }}
+        >
           <div className="flex gap-3">
             <input
               type="text"
               value={input}
               onChange={(e) => setInput(e.target.value)}
               placeholder="Ask a question about your articles..."
-              className="flex-1 px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+              className="flex-1 px-4 py-3 text-sm rounded-xl border outline-none transition-colors"
+              style={{
+                borderColor: 'var(--color-border)',
+                backgroundColor: 'var(--color-bg-secondary)',
+                color: 'var(--color-text-primary)',
+              }}
+              onFocus={(e) => {
+                e.currentTarget.style.borderColor = 'var(--color-accent)';
+                e.currentTarget.style.boxShadow = '0 0 0 2px var(--color-bg-accent-subtle)';
+              }}
+              onBlur={(e) => {
+                e.currentTarget.style.borderColor = 'var(--color-border)';
+                e.currentTarget.style.boxShadow = 'none';
+              }}
               disabled={loading}
             />
             <button
               type="submit"
               disabled={loading || !input.trim()}
-              className="px-6 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="px-5 py-3 text-sm font-medium text-white rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              style={{ backgroundColor: 'var(--color-accent)' }}
+              onMouseEnter={(e) => {
+                if (!loading && input.trim()) {
+                  e.currentTarget.style.backgroundColor = 'var(--color-accent-hover)';
+                }
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = 'var(--color-accent)';
+              }}
             >
               Send
             </button>
           </div>
-          <p className="mt-2 text-xs text-gray-400 text-center">
-            Responses are based only on your newsletter articles. If information isn't found, I'll let you know.
+          <p
+            className="mt-3 text-xs text-center"
+            style={{ color: 'var(--color-text-muted)' }}
+          >
+            Responses are based only on your newsletter articles
           </p>
         </form>
       </div>
