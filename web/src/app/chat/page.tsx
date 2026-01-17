@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
+import MarkdownRenderer from '@/components/MarkdownRenderer';
 
 interface Message {
   id: number;
@@ -165,7 +166,11 @@ export default function ChatPage() {
                       : 'var(--color-text-primary)',
                   }}
                 >
-                  <div className="whitespace-pre-wrap">{message.content}</div>
+                  {message.role === 'assistant' ? (
+                    <MarkdownRenderer content={message.content} />
+                  ) : (
+                    <div className="whitespace-pre-wrap">{message.content}</div>
+                  )}
                 </div>
               </div>
             ))

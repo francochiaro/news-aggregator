@@ -1,5 +1,7 @@
 'use client';
 
+import MarkdownRenderer from '@/components/MarkdownRenderer';
+
 interface Article {
   id: number;
   title: string;
@@ -56,12 +58,9 @@ export default function ArticleCard({ article, onFeedback }: ArticleCardProps) {
             <span style={{ color: 'var(--color-text-muted)' }}>↗</span>
           </a>
 
-          <p
-            className="mt-2 text-sm leading-relaxed line-clamp-3"
-            style={{ color: 'var(--color-text-secondary)' }}
-          >
-            {article.summary}
-          </p>
+          <div className="mt-2 text-sm leading-relaxed line-clamp-3">
+            <MarkdownRenderer content={article.summary} />
+          </div>
 
           <div
             className="mt-3 text-xs"

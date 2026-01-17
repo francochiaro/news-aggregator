@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import DateRangePicker from '@/components/DateRangePicker';
+import MarkdownRenderer from '@/components/MarkdownRenderer';
 
 interface Aggregation {
   id: number;
@@ -297,17 +298,7 @@ export default function SummaryPage() {
               Summary
             </h2>
             <div className="max-w-prose">
-              {aggregation.summary.split('\n').map((paragraph, i) => (
-                paragraph ? (
-                  <p
-                    key={i}
-                    className="mb-4 leading-relaxed"
-                    style={{ color: 'var(--color-text-secondary)' }}
-                  >
-                    {paragraph}
-                  </p>
-                ) : null
-              ))}
+              <MarkdownRenderer content={aggregation.summary} />
             </div>
           </div>
 
@@ -326,44 +317,7 @@ export default function SummaryPage() {
               >
                 Key Insights
               </h2>
-              <div className="space-y-3">
-                {aggregation.insights.split('\n').map((line, i) => {
-                  if (line.startsWith('**') && line.endsWith('**')) {
-                    return (
-                      <h3
-                        key={i}
-                        className="text-base font-medium mt-6 mb-2"
-                        style={{ color: 'var(--color-text-primary)' }}
-                      >
-                        {line.replace(/\*\*/g, '')}
-                      </h3>
-                    );
-                  }
-                  if (line.startsWith('- ')) {
-                    return (
-                      <p
-                        key={i}
-                        className="pl-4 leading-relaxed"
-                        style={{
-                          color: 'var(--color-text-secondary)',
-                          borderLeft: '2px solid var(--color-border)',
-                        }}
-                      >
-                        {line.substring(2)}
-                      </p>
-                    );
-                  }
-                  return line ? (
-                    <p
-                      key={i}
-                      className="leading-relaxed"
-                      style={{ color: 'var(--color-text-secondary)' }}
-                    >
-                      {line}
-                    </p>
-                  ) : null;
-                })}
-              </div>
+              <MarkdownRenderer content={aggregation.insights} />
             </div>
           )}
 
