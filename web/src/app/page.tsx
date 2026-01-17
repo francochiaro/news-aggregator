@@ -115,27 +115,64 @@ export default function SummaryPage() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto">
-      <div className="flex items-center justify-between mb-8">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">Weekly Summary</h1>
-          <p className="text-gray-600 mt-1">Your TL;DR newsletter digest</p>
-        </div>
+    <div>
+      {/* Page Header */}
+      <div className="mb-12">
+        <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-6">
+          <div>
+            <h1
+              className="text-4xl font-bold tracking-tight"
+              style={{ color: 'var(--color-text-primary)' }}
+            >
+              Weekly Summary
+            </h1>
+            <p
+              className="mt-2 text-base"
+              style={{ color: 'var(--color-text-secondary)' }}
+            >
+              Your TL;DR newsletter digest
+            </p>
+          </div>
 
-        <div className="flex gap-3">
-          <button
-            onClick={() => setShowDatePicker(!showDatePicker)}
-            className="px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
-          >
-            Custom Range
-          </button>
-          <button
-            onClick={runWeeklyAggregation}
-            disabled={generating}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-          >
-            {generating ? 'Generating...' : 'Generate Weekly'}
-          </button>
+          <div className="flex gap-3">
+            <button
+              onClick={() => setShowDatePicker(!showDatePicker)}
+              className="px-4 py-2.5 text-sm font-medium rounded-lg transition-colors border"
+              style={{
+                color: 'var(--color-text-secondary)',
+                borderColor: 'var(--color-border)',
+                backgroundColor: 'transparent',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = 'var(--color-bg-tertiary)';
+                e.currentTarget.style.color = 'var(--color-text-primary)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = 'transparent';
+                e.currentTarget.style.color = 'var(--color-text-secondary)';
+              }}
+            >
+              Custom Range
+            </button>
+            <button
+              onClick={runWeeklyAggregation}
+              disabled={generating}
+              className="px-5 py-2.5 text-sm font-medium text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              style={{
+                backgroundColor: generating ? 'var(--color-accent)' : 'var(--color-accent)',
+              }}
+              onMouseEnter={(e) => {
+                if (!generating) {
+                  e.currentTarget.style.backgroundColor = 'var(--color-accent-hover)';
+                }
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = 'var(--color-accent)';
+              }}
+            >
+              {generating ? 'Generating...' : 'Generate Weekly'}
+            </button>
+          </div>
         </div>
       </div>
 
