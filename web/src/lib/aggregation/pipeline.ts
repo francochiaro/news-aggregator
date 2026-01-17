@@ -1,4 +1,4 @@
-import { fetchTLDREmails, processNewsletters } from '../gmail';
+import { fetchNewsletterEmails, fetchTLDREmails, processNewsletters } from '../gmail';
 import { getArticlesByDateRange, insertAggregation, updateArticleContent, Aggregation, Article } from '../db';
 import { deduplicateArticles, quickDeduplicateByUrl } from '../ai/dedup';
 import { summarizeArticles } from '../ai/summarize';
@@ -41,9 +41,9 @@ export async function runAggregationPipeline(
     onProgress?.({ step, progress, details });
   };
 
-  // Step 1: Fetch emails from Gmail
+  // Step 1: Fetch emails from Gmail (all supported newsletters)
   report('Fetching emails', 10, 'Connecting to Gmail...');
-  const emails = await fetchTLDREmails(startDate, endDate);
+  const emails = await fetchNewsletterEmails(startDate, endDate);
   report('Fetching emails', 20, `Found ${emails.length} newsletter emails`);
 
   // Step 2: Parse and store articles

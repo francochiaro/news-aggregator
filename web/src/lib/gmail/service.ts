@@ -1,7 +1,26 @@
 import { google, gmail_v1 } from 'googleapis';
 import { getAuthenticatedClient } from './auth';
+import { parserRegistry } from '../parsers';
 
-// Known TL;DR newsletter sender addresses
+/**
+ * All supported newsletter sender addresses.
+ * Includes TL;DR and additional newsletters (Not Boring, 6pages, The Batch).
+ */
+const ALL_NEWSLETTER_SENDERS = [
+  // TL;DR
+  'dan@tldrnewsletter.com',
+  'tldr@tldrnewsletter.com',
+  'hello@tldr.tech',
+  'dan@tldr.tech',
+  // Not Boring (Substack)
+  'notboring@substack.com',
+  // 6pages
+  'hello@6pages.com',
+  // The Batch (DeepLearning.AI)
+  'thebatch@deeplearning.ai',
+];
+
+// Legacy: Keep for backward compatibility
 const TLDR_SENDERS = [
   'dan@tldrnewsletter.com',
   'tldr@tldrnewsletter.com',
@@ -24,6 +43,75 @@ export async function getGmailService(): Promise<gmail_v1.Gmail> {
   return google.gmail({ version: 'v1', auth });
 }
 
+/**
+ * Fetch emails from all supported newsletter senders within a date range.
+ * This is the primary function for multi-newsletter ingestion.
+ */
+export async function fetchNewsletterEmails(startDate: Date, endDate: Date): Promise<GmailMessage[]> {
+  const gmail = await getGmailService();
+
+  // Build query for all newsletter senders
+  const senderQuery = ALL_NEWSLETTER_SENDERS.map(s => `from:${s}`).join(' OR ');
+  const afterTimestamp = Math.floor(startDate.getTime() / 1000);
+  const beforeTimestamp = Math.floor(endDate.getTime() / 1000);
+
+  const query = `(${senderQuery}) after:${afterTimestamp} before:${beforeTimestamp}`;
+
+  console.log(`[Gmail] Fetching newsletters from ${ALL_NEWSLETTER_SENDERS.length} senders`);
+  console.log(`[Gmail] Date range: ${startDate.toISOString().split('T')[0]} to ${endDate.toISOString().split('T')[0]}`);
+
+  const messages: GmailMessage[] = [];
+  let pageToken: string | undefined;
+
+  do {
+    const response = await gmail.users.messages.list({
+      userId: 'me',
+      q: query,
+      maxResults: 100,
+      pageToken,
+    });
+
+    if (response.data.messages) {
+      for (const msg of response.data.messages) {
+        if (msg.id) {
+          const fullMessage = await fetchMessageDetails(gmail, msg.id);
+          if (fullMessage) {
+            messages.push(fullMessage);
+          }
+        }
+      }
+    }
+
+    pageToken = response.data.nextPageToken ?? undefined;
+  } while (pageToken);
+
+  // Log breakdown by sender
+  const senderCounts = new Map<string, number>();
+  for (const msg of messages) {
+    const sender = extractSenderEmail(msg.from);
+    senderCounts.set(sender, (senderCounts.get(sender) || 0) + 1);
+  }
+
+  console.log(`[Gmail] Fetched ${messages.length} total emails:`);
+  for (const [sender, count] of senderCounts) {
+    console.log(`[Gmail]   - ${sender}: ${count}`);
+  }
+
+  return messages;
+}
+
+/**
+ * Extract email address from "From" header.
+ */
+function extractSenderEmail(from: string): string {
+  const match = from.match(/<([^>]+)>/);
+  return match ? match[1].toLowerCase() : from.toLowerCase();
+}
+
+/**
+ * Fetch TL;DR emails only (legacy function for backward compatibility).
+ * @deprecated Use fetchNewsletterEmails for multi-newsletter support.
+ */
 export async function fetchTLDREmails(startDate: Date, endDate: Date): Promise<GmailMessage[]> {
   const gmail = await getGmailService();
 

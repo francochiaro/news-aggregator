@@ -47,8 +47,8 @@
         "Typecheck passes"
       ],
       "priority": 23,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Updated gmail/service.ts with ALL_NEWSLETTER_SENDERS array. Parser registry in web/src/lib/parsers/ handles routing. Tests verify mixed inbox processing."
     },
     {
       "id": "US-022",
@@ -65,8 +65,8 @@
         "Typecheck passes"
       ],
       "priority": 24,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Created web/src/lib/parsers/notboring.ts with NotBoringParser class. Excludes social/unsubscribe links. Tests in parsers.test.ts verify extraction."
     },
     {
       "id": "US-023",
@@ -83,8 +83,8 @@
         "Typecheck passes"
       ],
       "priority": 25,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Created web/src/lib/parsers/sixpages.ts with SixPagesParser class. Supports section headers and title inference. Tests verify footer link exclusion."
     },
     {
       "id": "US-024",
@@ -103,8 +103,8 @@
         "Typecheck passes"
       ],
       "priority": 26,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Created web/src/lib/parsers/thebatch.ts with TheBatchParser class. Uses extraction_method='email_inline', url can be null, content is extracted from h2 sections."
     },
     {
       "id": "US-027",
@@ -118,8 +118,8 @@
         "Typecheck passes"
       ],
       "priority": 27,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Updated web/src/lib/gmail/parser.ts with IngestionLogEntry interface and structured logging. Errors caught per-email, processing continues."
     },
     {
       "id": "US-028",
@@ -133,8 +133,8 @@
         "Typecheck passes"
       ],
       "priority": 28,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Created web/src/__tests__/parsers.test.ts (19 tests) and fixtures in web/src/__tests__/fixtures/. All parsers have sender routing and extraction tests."
     },
     {
       "id": "US-029",
@@ -150,8 +150,8 @@
         "Typecheck passes"
       ],
       "priority": 29,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Created web/src/__tests__/e2e-ingestion.test.ts (7 tests). Tests mixed inbox processing, deduplication, extraction methods, and error handling."
     }
   ]
 }
