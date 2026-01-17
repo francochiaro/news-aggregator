@@ -1,0 +1,290 @@
+{
+  "project": "NewsletterAggregator",
+  "branchName": "ralph/newsletter-aggregator-v1",
+  "description": "Newsletter Aggregator 1.0 - A local-first web app that aggregates TL;DR newsletter content into structured, summarized views with GPT-powered insights. Uses SQLite for local storage and OpenAI API for AI features.",
+  "userStories": [
+    {
+      "id": "US-001",
+      "title": "Create SQLite database schema for articles",
+      "description": "As a developer, I need to store article metadata locally so newsletter content can be persisted and queried.",
+      "acceptanceCriteria": [
+        "SQLite database file is created locally",
+        "Create articles table with columns: id, title, summary, source_url, newsletter_date, created_at",
+        "Create topics table with columns: id, name, created_at",
+        "Create article_topics junction table for many-to-many relationship",
+        "Database initialization script runs successfully",
+        "Typecheck passes"
+      ],
+      "priority": 1,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-002",
+      "title": "Create SQLite schema for aggregations and preferences",
+      "description": "As a developer, I need to store aggregation outputs and user preferences locally for the feedback system.",
+      "acceptanceCriteria": [
+        "Create aggregations table with columns: id, start_date, end_date, summary, insights, created_at",
+        "Create user_feedback table with columns: id, article_id, is_relevant (boolean), created_at",
+        "Create topic_preferences table with columns: id, topic_id, weight (numeric), updated_at",
+        "Database initialization includes all tables",
+        "Typecheck passes"
+      ],
+      "priority": 2,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-003",
+      "title": "Set up Google OAuth for Gmail access",
+      "description": "As a user, I want secure Gmail access so my email data is handled safely.",
+      "acceptanceCriteria": [
+        "Google OAuth configuration is set up in the app",
+        "User can authenticate with Google and grant Gmail read access",
+        "OAuth tokens are stored securely in local encrypted file (not plain text)",
+        "Typecheck passes"
+      ],
+      "priority": 3,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-004",
+      "title": "Create Gmail service to fetch TL;DR emails",
+      "description": "As a user, I want the tool to automatically access my TL;DR newsletters.",
+      "acceptanceCriteria": [
+        "Gmail API service can fetch emails using stored OAuth token",
+        "Emails are filtered by TL;DR sender address",
+        "Service accepts a date range parameter to fetch emails within that period",
+        "Raw email content is returned for processing",
+        "Typecheck passes"
+      ],
+      "priority": 4,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-005",
+      "title": "Create email parser to extract summaries and URLs",
+      "description": "As a user, I want article summaries and links extracted from newsletters.",
+      "acceptanceCriteria": [
+        "Parser extracts individual article entries from TL;DR email HTML",
+        "Each article's title, summary text, and source URL are captured",
+        "Extracted articles are stored in the SQLite articles table",
+        "Typecheck passes"
+      ],
+      "priority": 5,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-006",
+      "title": "Set up OpenAI GPT integration with rate limiting",
+      "description": "As a user, I want AI features that use my OpenAI API key efficiently.",
+      "acceptanceCriteria": [
+        "OpenAI API client is configured using user-provided API key from .env file",
+        "Rate limiting is implemented to manage API costs",
+        "Token budgeting/chunking utility exists for large content",
+        "Uses gpt-4o-mini or gpt-3.5-turbo for cost efficiency",
+        "Typecheck passes"
+      ],
+      "priority": 6,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-007",
+      "title": "Create summarization service using GPT",
+      "description": "As a user, I want aggregated summaries of my newsletter content.",
+      "acceptanceCriteria": [
+        "Service accepts a list of articles and returns a consolidated summary",
+        "Summary is generated using GPT with the TL;DR-provided summaries (not full articles)",
+        "Prompt instructs GPT to only use provided content",
+        "Typecheck passes"
+      ],
+      "priority": 7,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-008",
+      "title": "Create de-duplication service using GPT embeddings",
+      "description": "As a user, I want overlapping content avoided so summaries feel concise.",
+      "acceptanceCriteria": [
+        "Service identifies similar articles using OpenAI embeddings API",
+        "Duplicate/similar articles are grouped together by cosine similarity",
+        "Only one representative article per group is included in aggregations",
+        "Typecheck passes"
+      ],
+      "priority": 8,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-009",
+      "title": "Create theme and insight detection service",
+      "description": "As a user, I want the tool to highlight major themes or trends across articles.",
+      "acceptanceCriteria": [
+        "Service analyzes a batch of articles using GPT and identifies common themes",
+        "Returns synthesized insights (e.g. 'this week's main theme was X')",
+        "Themes/topics are stored in the SQLite topics table and linked to articles",
+        "Typecheck passes"
+      ],
+      "priority": 9,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-010",
+      "title": "Create weekly aggregation pipeline",
+      "description": "As a user, I want a weekly aggregation so I can review all relevant news at a chosen time.",
+      "acceptanceCriteria": [
+        "Pipeline fetches emails from last 7 days",
+        "Parses content, de-duplicates, summarizes, and detects themes",
+        "Stores aggregation result in SQLite aggregations table",
+        "Can be triggered manually via CLI or API endpoint",
+        "Typecheck passes"
+      ],
+      "priority": 10,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-011",
+      "title": "Create ad-hoc aggregation with date range",
+      "description": "As a user, I want to generate an aggregation on demand for a custom time range.",
+      "acceptanceCriteria": [
+        "User can specify start and end dates",
+        "Aggregation pipeline runs for the specified date range",
+        "Result is stored in SQLite and displayed",
+        "Typecheck passes"
+      ],
+      "priority": 11,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-012",
+      "title": "Create app layout and navigation",
+      "description": "As a user, I want a clean interface to navigate between views.",
+      "acceptanceCriteria": [
+        "Single-page app layout with header/navigation",
+        "Navigation links for: Summary view, Article list, Chat",
+        "Responsive design that works on desktop",
+        "Local backend serves the frontend on localhost",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 12,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-013",
+      "title": "Build aggregation summary view",
+      "description": "As a user, I want to see a clean summary of aggregated content.",
+      "acceptanceCriteria": [
+        "Displays the most recent aggregation summary from SQLite",
+        "Shows detected themes/insights section",
+        "Shows aggregation date range",
+        "Button to trigger new weekly aggregation",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 13,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-014",
+      "title": "Build article list view with URLs",
+      "description": "As a user, I want to see individual articles and access original sources.",
+      "acceptanceCriteria": [
+        "Displays list of articles from selected aggregation",
+        "Each article shows: title, summary, source link",
+        "Clicking source link opens original article in new tab",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 14,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-015",
+      "title": "Add date range selector for ad-hoc aggregation",
+      "description": "As a user, I want to select a custom date range for aggregation.",
+      "acceptanceCriteria": [
+        "Date picker component for start and end dates",
+        "Generate button triggers ad-hoc aggregation API call",
+        "Loading state shown while aggregation runs",
+        "Result displayed after completion",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 15,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-016",
+      "title": "Add relevance feedback buttons to articles",
+      "description": "As a user, I want to mark articles as relevant or irrelevant.",
+      "acceptanceCriteria": [
+        "Each article card has thumbs up/down buttons",
+        "Clicking stores feedback in SQLite user_feedback table",
+        "Visual indicator shows which feedback was given",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 16,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-017",
+      "title": "Implement preference learning from feedback",
+      "description": "As a user, I want the system to adapt to what I care about over time.",
+      "acceptanceCriteria": [
+        "System analyzes feedback to identify preferred topics",
+        "Topic weights in SQLite topic_preferences are updated based on feedback",
+        "Future aggregations prioritize articles matching preferred topics",
+        "Typecheck passes"
+      ],
+      "priority": 17,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-018",
+      "title": "Build chat interface UI",
+      "description": "As a user, I want to ask questions about my articles.",
+      "acceptanceCriteria": [
+        "Chat panel with message input and send button",
+        "Messages displayed in conversation format",
+        "Chat is scoped to articles from selected aggregation",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 18,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-019",
+      "title": "Implement chat Q&A with anti-hallucination safeguards",
+      "description": "As a user, I want trustworthy answers grounded in my article content.",
+      "acceptanceCriteria": [
+        "Chat sends user question + article context to GPT",
+        "Prompt strictly instructs to only use provided content",
+        "Response clearly states when information cannot be found in the articles",
+        "Answers are displayed in the chat UI",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 19,
+      "passes": false,
+      "notes": ""
+    }
+  ]
+}
