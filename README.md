@@ -112,7 +112,7 @@ A local-first web app that aggregates newsletter content from multiple sources i
 ### 1. Clone and Install
 
 ```bash
-git clone https://github.com/francochiaro94-art/news-aggregator.git
+git clone https://github.com/francochiaro/news-aggregator.git
 cd news-aggregator/web
 npm install
 ```
