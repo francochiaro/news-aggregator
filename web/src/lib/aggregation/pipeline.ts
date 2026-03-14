@@ -38,6 +38,7 @@ export async function runAggregationPipeline(
 ): Promise<AggregationResult> {
   const { scrapeContent = true, maxScrapeArticles = 20 } = options;
   const report = (step: string, progress: number, details?: string) => {
+    console.log(`[Pipeline] ${step} (${progress}%) ${details || ''}`);
     onProgress?.({ step, progress, details });
   };
 
