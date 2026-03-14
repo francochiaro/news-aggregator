@@ -1,0 +1,85 @@
+{
+  "project": "NewsletterAggregator",
+  "branchName": "ralph/chat-context-window",
+  "description": "Chat Context Window - Implement conversation memory so the chat maintains context across messages. Currently each message is sent independently with no history. This update will send the full conversation history to the API, enabling follow-up questions and natural dialogue.",
+  "userStories": [
+    {
+      "id": "US-001",
+      "title": "Update chat API to accept conversation history",
+      "description": "As a user, I want the chat to remember what we discussed so I can ask follow-up questions.",
+      "acceptanceCriteria": [
+        "Modify POST /api/chat to accept a 'messages' array parameter instead of just 'message'",
+        "The 'messages' array should contain objects with { role: 'user' | 'assistant', content: string }",
+        "Maintain backward compatibility: if only 'message' is provided (no 'messages' array), treat it as a single-message conversation",
+        "Include all conversation history messages in the OpenAI API call after the system prompt",
+        "Preserve the existing system prompt with article context",
+        "Typecheck passes"
+      ],
+      "priority": 1,
+      "passes": true,
+      "notes": "Backend foundation - must be done first"
+    },
+    {
+      "id": "US-002",
+      "title": "Update chat frontend to send conversation history",
+      "description": "As a user, I want my chat messages to be sent with the full conversation history.",
+      "acceptanceCriteria": [
+        "Modify sendMessage function in chat/page.tsx to send the full messages array",
+        "Format messages for the API: map the local Message[] to { role, content }[] format",
+        "Include the new user message in the history before sending",
+        "Ensure the messages state continues to work correctly for UI rendering",
+        "Typecheck passes"
+      ],
+      "priority": 2,
+      "passes": true,
+      "notes": "Connects frontend to the updated API"
+    },
+    {
+      "id": "US-003",
+      "title": "Add conversation context indicator to chat UI",
+      "description": "As a user, I want to see that the chat has context of our conversation.",
+      "acceptanceCriteria": [
+        "Add a subtle indicator showing the number of messages in the current conversation",
+        "Display this in the chat header or input area (e.g., '5 messages in conversation')",
+        "Style consistently with the existing design system using CSS variables",
+        "Update the count when new messages are added",
+        "Typecheck passes"
+      ],
+      "priority": 3,
+      "passes": true,
+      "notes": "Visual feedback that context is being maintained"
+    },
+    {
+      "id": "US-004",
+      "title": "Add clear conversation button",
+      "description": "As a user, I want to be able to start a fresh conversation without the previous context.",
+      "acceptanceCriteria": [
+        "Add a 'Clear conversation' or 'New conversation' button to the chat interface",
+        "Place the button in the header area, styled as a secondary/ghost button",
+        "Clicking the button clears the messages array and resets to the empty state",
+        "Only show the button when there are messages in the conversation",
+        "Style consistently with the design system",
+        "Typecheck passes"
+      ],
+      "priority": 4,
+      "passes": true,
+      "notes": "Allows users to reset context when needed"
+    },
+    {
+      "id": "US-005",
+      "title": "Handle token limit for long conversations",
+      "description": "As a user, I want the chat to gracefully handle very long conversations without errors.",
+      "acceptanceCriteria": [
+        "Estimate total token count of conversation history before sending to API",
+        "If conversation exceeds a safe limit (e.g., 6000 tokens for conversation history), truncate older messages",
+        "Keep the system prompt and most recent messages when truncating",
+        "Add a helper function to estimate conversation token count",
+        "Log a warning when truncation occurs",
+        "Typecheck passes"
+      ],
+      "priority": 5,
+      "passes": true,
+      "notes": "Prevents API errors from context that's too long. GPT-4o has 128k context but we want to leave room for the system prompt with articles and the response."
+    }
+  ]
+}

@@ -131,24 +131,16 @@ export default function SummaryPage() {
 
   return (
     <div>
-      {/* Page Header - Title left, buttons right */}
-      <div className="mb-8">
-        <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-6">
-          {/* Title - Left */}
-          <div>
-            <h1
-              className="text-4xl font-bold tracking-tight"
-              style={{ color: 'var(--color-text-primary)' }}
-            >
-              Weekly Summary
-            </h1>
-            <p
-              className="mt-2 text-base"
-              style={{ color: 'var(--color-text-secondary)' }}
-            >
-              Your TL;DR newsletter digest
-            </p>
-          </div>
+      {/* Page Header - Subtitle left, buttons right */}
+      <div className="mb-5">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+          {/* Subtitle - Left */}
+          <p
+            className="text-base"
+            style={{ color: 'var(--color-text-secondary)' }}
+          >
+            Your tech &amp; business newsletter digest
+          </p>
 
           {/* Buttons - Right */}
           <div className="flex flex-col sm:flex-row gap-3">
@@ -194,7 +186,7 @@ export default function SummaryPage() {
       </div>
 
       {showDatePicker && (
-        <div className="mb-6">
+        <div className="mb-4">
           <DateRangePicker
             onGenerate={runCustomAggregation}
             onCancel={() => setShowDatePicker(false)}
@@ -205,7 +197,7 @@ export default function SummaryPage() {
 
       {error && (
         <div
-          className="mb-8 px-4 py-3 rounded-lg text-sm"
+          className="mb-4 px-4 py-3 rounded-lg text-sm"
           style={{
             backgroundColor: 'var(--color-error-bg)',
             color: 'var(--color-error)',
@@ -217,7 +209,7 @@ export default function SummaryPage() {
 
       {generating && (
         <div
-          className="mb-8 px-4 py-3 rounded-lg text-sm"
+          className="mb-4 px-4 py-3 rounded-lg text-sm"
           style={{
             backgroundColor: 'var(--color-info-bg)',
             color: 'var(--color-text-secondary)',
@@ -238,7 +230,7 @@ export default function SummaryPage() {
 
       {!aggregation ? (
         <div
-          className="rounded-xl border py-16 px-8 text-center"
+          className="rounded-xl border py-12 px-8 text-center"
           style={{
             backgroundColor: 'var(--color-bg-secondary)',
             borderColor: 'var(--color-border)',
@@ -251,7 +243,7 @@ export default function SummaryPage() {
             No summaries yet
           </h2>
           <p
-            className="mb-8 max-w-sm mx-auto"
+            className="mb-6 max-w-sm mx-auto"
             style={{ color: 'var(--color-text-secondary)' }}
           >
             Connect your Gmail and generate your first weekly summary to get started.
@@ -277,7 +269,7 @@ export default function SummaryPage() {
         <div>
           {/* Date Range Meta */}
           <div
-            className="flex items-center justify-between py-3 px-4 rounded-lg mb-6"
+            className="flex items-center justify-between py-2 px-4 rounded-lg mb-4"
             style={{ backgroundColor: 'var(--color-bg-tertiary)' }}
           >
             <span
@@ -295,18 +287,18 @@ export default function SummaryPage() {
           </div>
 
           {/* Two-Column Layout */}
-          <div className="flex flex-col lg:flex-row gap-6">
+          <div className="flex flex-col lg:flex-row gap-5">
             {/* Left Column - Weekly Summary (40%) */}
             <div className="lg:w-[40%]">
               <div
-                className="rounded-xl border p-6 sm:p-8 h-full"
+                className="rounded-xl border p-5 sm:p-6 h-full"
                 style={{
                   backgroundColor: 'var(--color-bg-secondary)',
                   borderColor: 'var(--color-border)',
                 }}
               >
                 <h2
-                  className="text-lg font-semibold mb-6"
+                  className="text-lg font-semibold mb-4"
                   style={{ color: 'var(--color-text-primary)' }}
                 >
                   Weekly Summary
@@ -319,9 +311,9 @@ export default function SummaryPage() {
 
             {/* Right Column - Key Insights (60%) */}
             <div className="lg:w-[60%]">
-              <div className="space-y-4">
+              <div className="space-y-3">
                 <h2
-                  className="text-lg font-semibold mb-4"
+                  className="text-lg font-semibold mb-3"
                   style={{ color: 'var(--color-text-primary)' }}
                 >
                   Key Insights
@@ -336,7 +328,7 @@ export default function SummaryPage() {
                       summary={structuredInsights.executiveOverview.mainInsight}
                       defaultExpanded={true}
                     >
-                      <div className="space-y-4 pt-3">
+                      <div className="space-y-3 pt-2">
                         {/* Main Insight */}
                         <div>
                           <h4
@@ -418,7 +410,7 @@ export default function SummaryPage() {
                         title="Market & Competitive Moves"
                         summary={structuredInsights.marketMoves.summary}
                       >
-                        <ul className="space-y-2 pt-3">
+                        <ul className="space-y-1.5 pt-2">
                           {structuredInsights.marketMoves.bullets.map((bullet, i) => (
                             <li
                               key={i}
@@ -439,7 +431,7 @@ export default function SummaryPage() {
                         title="Technology & Architecture Shifts"
                         summary={structuredInsights.techShifts.summary}
                       >
-                        <ul className="space-y-2 pt-3">
+                        <ul className="space-y-1.5 pt-2">
                           {structuredInsights.techShifts.bullets.map((bullet, i) => (
                             <li
                               key={i}
@@ -460,7 +452,7 @@ export default function SummaryPage() {
                         title="Industry Impact & Use Cases"
                         summary={structuredInsights.industryImpact.summary}
                       >
-                        <div className="space-y-4 pt-3">
+                        <div className="space-y-3 pt-2">
                           {structuredInsights.industryImpact.industries.map((industry, i) => (
                             <div key={i}>
                               <h4
@@ -493,7 +485,7 @@ export default function SummaryPage() {
                         title="Economic & Policy Signals"
                         summary={structuredInsights.policySignals.summary}
                       >
-                        <ul className="space-y-2 pt-3">
+                        <ul className="space-y-1.5 pt-2">
                           {structuredInsights.policySignals.bullets.map((bullet, i) => (
                             <li
                               key={i}
@@ -515,7 +507,7 @@ export default function SummaryPage() {
                     summary="View the key insights from this week's articles"
                     defaultExpanded={true}
                   >
-                    <div className="pt-3">
+                    <div className="pt-2">
                       <MarkdownRenderer content={aggregation.insights!} />
                     </div>
                   </InsightCard>
@@ -533,7 +525,7 @@ export default function SummaryPage() {
 
           {/* Article Count - Footer style */}
           <div
-            className="flex items-center justify-between pt-6 mt-8 border-t"
+            className="flex items-center justify-between pt-4 mt-6 border-t"
             style={{ borderColor: 'var(--color-border)' }}
           >
             <p

@@ -1,0 +1,198 @@
+{
+  "project": "NewsletterAggregator",
+  "branchName": "ralph/home-revamp",
+  "description": "Home Page Revamp - Redesign the home page with a two-column layout separating narrative summary from structured, collapsible insight cards. Focus on information hierarchy, scannability, and controlled information density.",
+  "userStories": [
+    {
+      "id": "US-000",
+      "title": "Update insights generation with tailored prompts per section",
+      "description": "As a developer, I need each insight category to have its own specialized AI prompt so that content is focused, high-quality, and relevant to that specific domain.",
+      "acceptanceCriteria": [
+        "Create separate AI prompt functions for each insight section in lib/ai/insights.ts",
+        "Executive Overview prompt: focused on synthesis, identifying 3-5 key themes with article counts, and 3-5 emerging trends",
+        "Market & Competitive Moves prompt: focused on partnerships, acquisitions, investments, leadership/org changes",
+        "Technology & Architecture Shifts prompt: focused on agent systems, model architectures, infrastructure, compute evolution",
+        "Industry Impact & Use Cases prompt: focused on sector-specific applications grouped by industry (healthcare, finance, media, enterprise, consumer)",
+        "Economic & Policy Signals prompt: focused on regulation, geopolitics, supply chain, labor and economic impacts",
+        "Each prompt instructs the AI to return JSON with a 'summary' (1-2 sentences for collapsed state) and 'bullets' array",
+        "Create a generateStructuredInsights function that calls all prompts and combines results",
+        "Update the aggregation pipeline to use the new structured insights generation",
+        "Store structured insights as JSON string in the database",
+        "Maintain backward compatibility: if insights is plain text (old format), parse and display in a single card",
+        "Typecheck passes"
+      ],
+      "priority": 0,
+      "passes": false,
+      "notes": "Foundation - must be done first. Each section gets a tailored prompt for maximum relevance and quality."
+    },
+    {
+      "id": "US-001",
+      "title": "Home page layout redesign (two-column structure)",
+      "description": "As a weekly newsletter reader, I want the home page to clearly separate narrative context from structured insights so that I can quickly understand what happened and then scan the most important takeaways.",
+      "acceptanceCriteria": [
+        "The home page uses a two-column layout on desktop and tablet",
+        "The left column occupies approximately 60-65% of the available width",
+        "The right column occupies approximately 35-40% of the available width",
+        "The left column contains the Weekly Summary section",
+        "The right column contains the Key Insights section",
+        "The layout gracefully stacks into a single column on mobile, with Weekly Summary appearing before Key Insights",
+        "No content is removed compared to the current home page; content is reorganized only",
+        "Typecheck passes"
+      ],
+      "priority": 1,
+      "passes": false,
+      "notes": "Layout foundation for the revamp"
+    },
+    {
+      "id": "US-002",
+      "title": "Weekly Summary placement and presentation",
+      "description": "As a reader landing on the home page, I want the Weekly Summary to be prominently displayed on the left so that I can read a coherent narrative of the week without distractions.",
+      "acceptanceCriteria": [
+        "The Weekly Summary appears at the top of the left column",
+        "The section includes a clear 'Weekly Summary' title",
+        "The section includes the selected date range",
+        "The section includes the generation timestamp (if available)",
+        "The summary text width is optimized for long-form reading (no excessively wide lines)",
+        "The summary content remains unchanged in meaning from the current implementation",
+        "The summary is fully visible without requiring interaction (not collapsible)",
+        "Typecheck passes"
+      ],
+      "priority": 2,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-003",
+      "title": "Key Insights section as a card-based system",
+      "description": "As a reader who prefers scanning over reading long blocks of text, I want the Key Insights section broken into multiple insight cards so that I can quickly identify and expand only the insights that matter to me.",
+      "acceptanceCriteria": [
+        "The Key Insights section appears in the right column",
+        "The section is composed of multiple vertically stacked cards",
+        "Each card is visually separated using elevation, border, or background contrast",
+        "Each card has a header, a collapsible content area, and a visual expand/collapse indicator (e.g., chevron)",
+        "Cards can be expanded or collapsed by clicking anywhere on the card header",
+        "Create a reusable InsightCard component",
+        "Typecheck passes"
+      ],
+      "priority": 3,
+      "passes": false,
+      "notes": "Create the card component infrastructure"
+    },
+    {
+      "id": "US-004",
+      "title": "Executive Overview insight card (primary card)",
+      "description": "As a time-constrained reader, I want a single executive overview card summarizing the entire week so that I can understand the most important insights in under 30 seconds.",
+      "acceptanceCriteria": [
+        "An 'Executive Overview' card is displayed as the first card in the Key Insights section",
+        "This card is expanded by default on page load",
+        "The card content includes a 'Main Insight' section with a 1-2 sentence synthesis",
+        "The card content includes a 'Key Themes' section with theme names and article counts per theme",
+        "The card content includes an 'Emerging Trends' section with short bullet points",
+        "The content of this card matches the current Key Insights content semantically",
+        "Collapsing this card hides all its internal sections",
+        "Typecheck passes"
+      ],
+      "priority": 4,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-005",
+      "title": "Collapsible insight cards behavior",
+      "description": "As a frequent reader, I want insight cards to be collapsible and expandable so that I can control information density on the page.",
+      "acceptanceCriteria": [
+        "All insight cards except the Executive Overview are collapsed by default",
+        "Clicking an expanded card header collapses it",
+        "Clicking a collapsed card header expands it",
+        "Only the content area toggles; the card header remains visible at all times",
+        "Expand/collapse actions do not trigger page navigation or reload",
+        "Card state changes are animated with a subtle transition (max 200ms)",
+        "Typecheck passes"
+      ],
+      "priority": 5,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-006",
+      "title": "Market & Competitive Moves insight card",
+      "description": "As a reader interested in industry dynamics, I want a dedicated card summarizing market and competitive activity so that I can understand strategic moves without reading every article.",
+      "acceptanceCriteria": [
+        "A card titled 'Market & Competitive Moves' exists in the Key Insights section",
+        "The collapsed state shows a 1-2 line synthesized takeaway",
+        "The expanded state includes bullet points covering major partnerships, acquisitions or large investments, and leadership or organizational changes with strategic impact",
+        "Each bullet point is concise and independently readable",
+        "The card can be expanded and collapsed like other insight cards",
+        "Typecheck passes"
+      ],
+      "priority": 6,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-007",
+      "title": "Technology & Architecture Shifts insight card",
+      "description": "As a technically inclined reader, I want a card focused on technology and architectural changes so that I can track how AI systems are evolving beneath the surface.",
+      "acceptanceCriteria": [
+        "A card titled 'Technology & Architecture Shifts' exists",
+        "The collapsed state summarizes the dominant technical shift in 1-2 lines",
+        "The expanded state includes bullet points related to agent-based or agent-native systems, model or system architecture changes, and infrastructure and compute-related evolution",
+        "The card content is distinct from market or economic insights",
+        "The card follows the same interaction patterns as other cards",
+        "Typecheck passes"
+      ],
+      "priority": 7,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-008",
+      "title": "Industry Impact & Use Cases insight card",
+      "description": "As a reader applying insights to real-world domains, I want a card focused on industry-specific applications so that I can understand where AI adoption is concretely happening.",
+      "acceptanceCriteria": [
+        "A card titled 'Industry Impact & Use Cases' exists",
+        "The collapsed state shows a high-level synthesis sentence",
+        "The expanded state groups bullet points by industry (e.g., healthcare, finance, media, enterprise, consumer)",
+        "Each industry group contains at least one concise bullet point",
+        "The card is collapsed by default on page load",
+        "Typecheck passes"
+      ],
+      "priority": 8,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-009",
+      "title": "Economic & Policy Signals insight card",
+      "description": "As a reader tracking macro-level forces, I want a card highlighting economic and policy signals so that I can contextualize technological changes within broader systems.",
+      "acceptanceCriteria": [
+        "A card titled 'Economic & Policy Signals' exists",
+        "The collapsed state provides a short macro-level takeaway",
+        "The expanded state includes bullet points related to regulation and policy developments, geopolitical or supply-chain constraints, and labor, productivity, or economic impact narratives",
+        "The card is collapsed by default",
+        "The card does not duplicate content from other insight cards",
+        "Typecheck passes"
+      ],
+      "priority": 9,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-010",
+      "title": "Insight card content density and readability",
+      "description": "As a reader skimming the page, I want each insight card to be concise and scannable so that I can extract value quickly without cognitive overload.",
+      "acceptanceCriteria": [
+        "No insight card displays more than 2 lines of text when collapsed",
+        "No insight card displays more than 8-10 bullet points when expanded",
+        "Bullet points are sentence fragments or single sentences",
+        "No paragraph-style blocks appear inside insight cards",
+        "Typography clearly differentiates card titles, summary lines, and bullet points",
+        "The visual hierarchy remains consistent across all cards",
+        "Typecheck passes"
+      ],
+      "priority": 10,
+      "passes": false,
+      "notes": "Final polish pass for card content"
+    }
+  ]
+}

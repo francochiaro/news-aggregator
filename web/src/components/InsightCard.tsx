@@ -86,7 +86,7 @@ export default function InsightCard({
         }}
       >
         <div
-          className="px-4 pb-4 pt-0 border-t"
+          className="px-4 pb-3 pt-0 border-t"
           style={{ borderColor: 'var(--color-border)' }}
         >
           {children}

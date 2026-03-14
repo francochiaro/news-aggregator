@@ -322,8 +322,73 @@
         "Verify in browser using dev-browser skill"
       ],
       "priority": 19,
-      "passes": false,
+      "passes": true,
       "notes": "Final consistency check across all pages"
+    },
+    {
+      "id": "US-020",
+      "title": "Create reusable MarkdownRenderer component",
+      "description": "As a user, I want markdown content to be properly rendered so I can see formatted text with headings, lists, links, and code blocks.",
+      "acceptanceCriteria": [
+        "Install react-markdown package",
+        "Create MarkdownRenderer component in web/src/components/MarkdownRenderer.tsx",
+        "Support common markdown elements: headings (h1-h6), paragraphs, bold, italic, links, lists (ordered/unordered), code blocks, inline code, blockquotes",
+        "Style markdown elements to match the design system (use CSS variables for colors)",
+        "Links should use accent color and open in new tab",
+        "Code blocks should have subtle background styling",
+        "Lists should have proper indentation and spacing",
+        "Typecheck passes"
+      ],
+      "priority": 20,
+      "passes": true,
+      "notes": "Foundation component for markdown support across the app"
+    },
+    {
+      "id": "US-021",
+      "title": "Add markdown support to Summary page",
+      "description": "As a user, I want the summary and insights sections to render markdown properly.",
+      "acceptanceCriteria": [
+        "Import MarkdownRenderer in page.tsx (Summary page)",
+        "Replace plain text rendering of aggregation.summary with MarkdownRenderer",
+        "Replace plain text rendering of aggregation.insights with MarkdownRenderer",
+        "Remove the manual paragraph splitting and markdown parsing logic",
+        "Ensure styling is consistent with the design system",
+        "Typecheck passes"
+      ],
+      "priority": 21,
+      "passes": true,
+      "notes": "Summary and insights often contain markdown from LLM responses"
+    },
+    {
+      "id": "US-022",
+      "title": "Add markdown support to Chat page",
+      "description": "As a user, I want chat assistant responses to render markdown properly.",
+      "acceptanceCriteria": [
+        "Import MarkdownRenderer in chat/page.tsx",
+        "Use MarkdownRenderer for assistant message content (role === 'assistant')",
+        "Keep user messages as plain text (they don't need markdown rendering)",
+        "Ensure code blocks in chat responses are styled appropriately",
+        "Ensure links in chat responses are clickable and styled",
+        "Typecheck passes"
+      ],
+      "priority": 22,
+      "passes": true,
+      "notes": "Chat responses from LLM often contain markdown formatting"
+    },
+    {
+      "id": "US-023",
+      "title": "Add markdown support to ArticleCard component",
+      "description": "As a user, I want article summaries to render markdown properly.",
+      "acceptanceCriteria": [
+        "Import MarkdownRenderer in ArticleCard.tsx",
+        "Use MarkdownRenderer for article.summary content",
+        "Ensure the markdown rendering fits within the card design",
+        "Links in summaries should be styled with accent color",
+        "Typecheck passes"
+      ],
+      "priority": 23,
+      "passes": true,
+      "notes": "Article summaries may contain markdown from LLM extraction"
     }
   ]
 }
