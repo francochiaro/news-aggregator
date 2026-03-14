@@ -1,72 +1,89 @@
-import OpenAI from 'openai';
+import { spawn } from 'child_process';
 
-let openaiClient: OpenAI | null = null;
+const MODEL = 'claude-sonnet-4-6';
+const MAX_CONCURRENT = 3;
 
-// Rate limiting configuration
-const RATE_LIMIT = {
-  requestsPerMinute: 20, // Conservative limit
-  tokensPerMinute: 40000, // Conservative token limit
-};
+// Concurrency semaphore
+let activeRequests = 0;
+const waitQueue: (() => void)[] = [];
 
-// Track rate limiting state
-const rateLimitState = {
-  requests: [] as number[],
-  tokens: 0,
-  lastReset: Date.now(),
-};
-
-export function getOpenAIClient(): OpenAI {
-  if (!openaiClient) {
-    const apiKey = process.env.OPENAI_API_KEY;
-
-    if (!apiKey) {
-      throw new Error('Missing OPENAI_API_KEY environment variable');
-    }
-
-    openaiClient = new OpenAI({ apiKey });
+async function acquireSemaphore(): Promise<void> {
+  if (activeRequests < MAX_CONCURRENT) {
+    activeRequests++;
+    return;
   }
+  return new Promise<void>((resolve) => {
+    waitQueue.push(() => {
+      activeRequests++;
+      resolve();
+    });
+  });
+}
 
-  return openaiClient;
+function releaseSemaphore(): void {
+  activeRequests--;
+  const next = waitQueue.shift();
+  if (next) next();
 }
 
 /**
- * Check if we can make a request within rate limits
- * Returns wait time in ms if we need to wait, 0 if we can proceed
+ * Call Claude CLI with a prompt via stdin.
+ * Returns the text result from Claude.
  */
-function checkRateLimit(estimatedTokens: number): number {
-  const now = Date.now();
-  const oneMinuteAgo = now - 60000;
+async function callClaude(prompt: string): Promise<string> {
+  await acquireSemaphore();
 
-  // Reset token count every minute
-  if (now - rateLimitState.lastReset > 60000) {
-    rateLimitState.tokens = 0;
-    rateLimitState.lastReset = now;
+  try {
+    return await new Promise<string>((resolve, reject) => {
+      const proc = spawn('claude', [
+        '-p',
+        '--output-format', 'json',
+        '--no-session-persistence',
+        '--model', MODEL,
+      ], {
+        stdio: ['pipe', 'pipe', 'pipe'],
+        env: { ...process.env },
+      });
+
+      let stdout = '';
+      let stderr = '';
+
+      proc.stdout.on('data', (data: Buffer) => {
+        stdout += data.toString();
+      });
+
+      proc.stderr.on('data', (data: Buffer) => {
+        stderr += data.toString();
+      });
+
+      proc.on('close', (code) => {
+        if (code !== 0) {
+          reject(new Error(`Claude CLI exited with code ${code}: ${stderr}`));
+          return;
+        }
+
+        try {
+          const parsed = JSON.parse(stdout);
+          // The JSON output format returns { result: "..." } or similar
+          const text = parsed.result || parsed.content || parsed.text || stdout;
+          resolve(typeof text === 'string' ? text : JSON.stringify(text));
+        } catch {
+          // If not valid JSON, return raw stdout
+          resolve(stdout.trim());
+        }
+      });
+
+      proc.on('error', (err) => {
+        reject(new Error(`Failed to spawn Claude CLI: ${err.message}. Is 'claude' installed and in PATH?`));
+      });
+
+      // Write prompt to stdin and close
+      proc.stdin.write(prompt);
+      proc.stdin.end();
+    });
+  } finally {
+    releaseSemaphore();
   }
-
-  // Remove old requests from tracking
-  rateLimitState.requests = rateLimitState.requests.filter(t => t > oneMinuteAgo);
-
-  // Check request limit
-  if (rateLimitState.requests.length >= RATE_LIMIT.requestsPerMinute) {
-    const oldestRequest = rateLimitState.requests[0];
-    return oldestRequest + 60000 - now;
-  }
-
-  // Check token limit
-  if (rateLimitState.tokens + estimatedTokens > RATE_LIMIT.tokensPerMinute) {
-    return rateLimitState.lastReset + 60000 - now;
-  }
-
-  return 0;
-}
-
-function recordRequest(tokens: number): void {
-  rateLimitState.requests.push(Date.now());
-  rateLimitState.tokens += tokens;
-}
-
-async function sleep(ms: number): Promise<void> {
-  return new Promise(resolve => setTimeout(resolve, ms));
 }
 
 /**
@@ -123,88 +140,29 @@ export function chunkText(text: string, maxTokens: number): string[] {
 }
 
 /**
- * Make a rate-limited chat completion request
+ * Make a chat completion request using Claude CLI.
+ * Converts messages array to a single prompt string.
  */
 export async function createChatCompletion(
-  messages: OpenAI.Chat.ChatCompletionMessageParam[],
+  messages: { role: string; content: string }[],
   options: {
     maxTokens?: number;
     temperature?: number;
   } = {}
 ): Promise<string> {
-  const client = getOpenAIClient();
+  // Convert messages array to a prompt string
+  const parts: string[] = [];
 
-  // Estimate input tokens
-  const inputTokens = messages.reduce((sum, m) => {
-    const content = typeof m.content === 'string' ? m.content : '';
-    return sum + estimateTokens(content);
-  }, 0);
-
-  const estimatedTotalTokens = inputTokens + (options.maxTokens || 1000);
-
-  // Wait if rate limited
-  const waitTime = checkRateLimit(estimatedTotalTokens);
-  if (waitTime > 0) {
-    console.log(`Rate limited, waiting ${waitTime}ms...`);
-    await sleep(waitTime);
+  for (const msg of messages) {
+    if (msg.role === 'system') {
+      parts.push(`<system>\n${msg.content}\n</system>`);
+    } else if (msg.role === 'user') {
+      parts.push(`Human: ${msg.content}`);
+    } else if (msg.role === 'assistant') {
+      parts.push(`Assistant: ${msg.content}`);
+    }
   }
 
-  const response = await client.chat.completions.create({
-    model: 'gpt-4o', // Default model, will use latest available
-    messages,
-    max_tokens: options.maxTokens || 1000,
-    temperature: options.temperature ?? 0.7,
-  });
-
-  // Record actual token usage
-  const totalTokens = response.usage?.total_tokens || estimatedTotalTokens;
-  recordRequest(totalTokens);
-
-  return response.choices[0]?.message?.content || '';
-}
-
-/**
- * Create embeddings for text (for de-duplication)
- */
-export async function createEmbedding(text: string): Promise<number[]> {
-  const client = getOpenAIClient();
-
-  // Estimate tokens and check rate limit
-  const estimatedTokens = estimateTokens(text);
-  const waitTime = checkRateLimit(estimatedTokens);
-  if (waitTime > 0) {
-    await sleep(waitTime);
-  }
-
-  const response = await client.embeddings.create({
-    model: 'text-embedding-3-small',
-    input: text,
-  });
-
-  recordRequest(estimatedTokens);
-
-  return response.data[0].embedding;
-}
-
-/**
- * Create embeddings for multiple texts in batch
- */
-export async function createEmbeddings(texts: string[]): Promise<number[][]> {
-  const client = getOpenAIClient();
-
-  // Estimate tokens and check rate limit
-  const estimatedTokens = texts.reduce((sum, t) => sum + estimateTokens(t), 0);
-  const waitTime = checkRateLimit(estimatedTokens);
-  if (waitTime > 0) {
-    await sleep(waitTime);
-  }
-
-  const response = await client.embeddings.create({
-    model: 'text-embedding-3-small',
-    input: texts,
-  });
-
-  recordRequest(estimatedTokens);
-
-  return response.data.map(d => d.embedding);
+  const prompt = parts.join('\n\n');
+  return callClaude(prompt);
 }

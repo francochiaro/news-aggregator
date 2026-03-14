@@ -1,6 +1,6 @@
 import { fetchNewsletterEmails, fetchTLDREmails, processNewsletters } from '../gmail';
 import { getArticlesByDateRange, insertAggregation, updateArticleContent, Aggregation, Article } from '../db';
-import { deduplicateArticles, quickDeduplicateByUrl } from '../ai/dedup';
+import { quickDeduplicateByUrl } from '../ai/dedup';
 import { summarizeArticles } from '../ai/summarize';
 import { detectThemesAndInsights } from '../ai/themes';
 import { generateStructuredInsights } from '../ai/insights';
@@ -72,37 +72,31 @@ export async function runAggregationPipeline(
   let articles = getArticlesByDateRange(startDateStr, endDateStr);
   const totalArticles = articles.length;
 
-  // Step 5: Quick de-duplication by URL
-  report('De-duplicating', 50, 'Removing exact duplicates...');
+  // Step 5: De-duplication by URL
+  report('De-duplicating', 50, 'Removing duplicates...');
+  const beforeDedup = articles.length;
   articles = quickDeduplicateByUrl(articles);
+  report('De-duplicating', 60, `Removed ${beforeDedup - articles.length} duplicate articles`);
 
-  // Step 6: Semantic de-duplication (if we have articles)
-  if (articles.length > 1) {
-    report('De-duplicating', 55, 'Analyzing semantic similarity...');
-    const dedupResult = await deduplicateArticles(articles);
-    articles = dedupResult.uniqueArticles;
-    report('De-duplicating', 60, `Removed ${dedupResult.removedCount} similar articles`);
-  }
-
-  // Step 7: Generate summary
-  report('Summarizing', 70, 'Generating summary with AI...');
+  // Step 6: Generate summary
+  report('Summarizing', 65, 'Generating summary with AI...');
   const summaryResult = await summarizeArticles(articles);
-  report('Summarizing', 80, 'Summary generated');
+  report('Summarizing', 75, 'Summary generated');
 
-  // Step 8: Detect themes (for database linking)
-  report('Analyzing themes', 82, 'Detecting themes...');
+  // Step 7: Detect themes (for database linking)
+  report('Analyzing themes', 78, 'Detecting themes...');
   const themesResult = await detectThemesAndInsights(articles);
-  report('Analyzing themes', 85, `Found ${themesResult.themes.length} themes`);
+  report('Analyzing themes', 82, `Found ${themesResult.themes.length} themes`);
 
-  // Step 9: Generate structured insights with tailored prompts
-  report('Generating insights', 87, 'Generating structured insights...');
+  // Step 8: Generate structured insights with tailored prompts
+  report('Generating insights', 85, 'Generating structured insights...');
   const structuredInsights = await generateStructuredInsights(articles);
   report('Generating insights', 92, 'Insights generated');
 
   // Store as JSON string
   const insightsText = JSON.stringify(structuredInsights);
 
-  // Step 10: Save aggregation to database
+  // Step 9: Save aggregation to database
   report('Saving', 95, 'Saving aggregation...');
   const aggregation = insertAggregation(
     {

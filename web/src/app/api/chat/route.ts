@@ -106,12 +106,12 @@ ${articleContext}`;
     );
 
     // Build messages array: system prompt + conversation history
-    const openAIMessages: { role: 'system' | 'user' | 'assistant'; content: string }[] = [
+    const chatMessages: { role: 'system' | 'user' | 'assistant'; content: string }[] = [
       { role: 'system', content: systemPrompt },
       ...truncatedHistory,
     ];
 
-    const response = await createChatCompletion(openAIMessages, {
+    const response = await createChatCompletion(chatMessages, {
       maxTokens: 1000,
       temperature: 0.3, // Lower temperature for more factual responses
     });

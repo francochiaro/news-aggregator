@@ -7,7 +7,7 @@ Newsletter Aggregator - A local-first web app that fetches newsletters from Gmai
 - **Framework**: Next.js 16 (App Router)
 - **Styling**: Tailwind CSS
 - **Database**: SQLite (better-sqlite3) - stored in `web/data/`
-- **AI**: OpenAI API (GPT for chat/summaries, embeddings for dedup)
+- **AI**: Claude Code CLI (claude-sonnet-4-6 via `claude -p`)
 - **Auth**: Google OAuth 2.0 for Gmail access
 
 ## Key Files
@@ -29,9 +29,10 @@ Newsletter Aggregator - A local-first web app that fetches newsletters from Gmai
 - `web/src/lib/gmail/parser.ts` - Email ingestion orchestrator with observability logging
 - `web/src/lib/gmail/service.ts` - Gmail API integration (multi-sender support)
 - `web/src/lib/gmail/auth.ts` - OAuth with AES-256 encrypted token storage
-- `web/src/lib/ai/summarize.ts` - GPT summarization
+- `web/src/lib/ai/client.ts` - Claude CLI wrapper (spawn + stdin pipe, concurrency semaphore)
+- `web/src/lib/ai/summarize.ts` - Article summarization
 - `web/src/lib/ai/themes.ts` - Theme detection
-- `web/src/lib/ai/dedup.ts` - Semantic deduplication using embeddings
+- `web/src/lib/ai/dedup.ts` - URL-based deduplication
 - `web/src/lib/scraper/index.ts` - Web scraper for article content
 - `web/src/lib/aggregation/pipeline.ts` - Main aggregation pipeline
 - `web/src/lib/db/schema.ts` - SQLite schema and migrations
@@ -57,7 +58,7 @@ Newsletter Aggregator - A local-first web app that fetches newsletters from Gmai
 - **Modular Parser Registry**: Each newsletter has its own parser module. Adding a new newsletter requires one registry entry and one parser implementation.
 - **Two extraction methods**: `email_links` (URL-based, requires scraping) and `email_inline` (content embedded in email, e.g., The Batch)
 - **URL Canonicalization**: Tracking params (utm_*, mc_*, etc.) are stripped before deduplication
-- **Anti-hallucination**: Chat prompts strictly instruct GPT to only use provided article content
+- **Anti-hallucination**: Chat prompts strictly instruct the model to only use provided article content
 
 ## Code Style
 - TypeScript strict mode
@@ -80,10 +81,11 @@ rm -rf web/data
 
 ## Environment Variables
 Required in `web/.env.local`:
-- `OPENAI_API_KEY`
 - `GOOGLE_CLIENT_ID`
 - `GOOGLE_CLIENT_SECRET`
 - `GOOGLE_REDIRECT_URI=http://localhost:3000/api/auth/callback`
+
+AI features use Claude Code CLI (`claude` command) — no API key needed, requires active Anthropic subscription.
 
 ## Running Tests
 ```bash

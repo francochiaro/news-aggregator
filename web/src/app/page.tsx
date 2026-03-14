@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import DateRangePicker from '@/components/DateRangePicker';
 import MarkdownRenderer from '@/components/MarkdownRenderer';
 import InsightCard from '@/components/InsightCard';
-import { StructuredInsights, parseStructuredInsights } from '@/lib/ai/insights';
+import { StructuredInsights, parseStructuredInsights } from '@/lib/ai/insights-types';
 
 interface Aggregation {
   id: number;

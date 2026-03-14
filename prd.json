@@ -1,7 +1,7 @@
 {
   "project": "NewsletterAggregator",
   "branchName": "ralph/newsletter-aggregator-v1",
-  "description": "Newsletter Aggregator 1.0 - A local-first web app that aggregates TL;DR newsletter content into structured, summarized views with GPT-powered insights. Uses SQLite for local storage and OpenAI API for AI features.",
+  "description": "Newsletter Aggregator 1.0 - A local-first web app that aggregates TL;DR newsletter content into structured, summarized views with AI-powered insights. Uses SQLite for local storage and Claude Code CLI for AI features.",
   "userStories": [
     {
       "id": "US-001",
@@ -79,18 +79,19 @@
     },
     {
       "id": "US-006",
-      "title": "Set up OpenAI GPT integration with rate limiting",
-      "description": "As a user, I want AI features that use my OpenAI API key efficiently.",
+      "title": "Set up Claude Code CLI integration with concurrency control",
+      "description": "As a user, I want AI features powered by Claude via the CLI without needing an API key.",
       "acceptanceCriteria": [
-        "OpenAI API client is configured using user-provided API key from .env file",
-        "Rate limiting is implemented to manage API costs",
+        "Claude Code CLI is invoked via child_process.spawn with stdin pipe for prompts",
+        "Concurrency semaphore limits parallel CLI calls to 3",
         "Token budgeting/chunking utility exists for large content",
-        "Uses the default OpenAI GPT model (or gpt-5.2 if available)",
+        "Uses claude-sonnet-4-6 model via --model flag",
+        "No API key required — uses active Anthropic subscription",
         "Typecheck passes"
       ],
       "priority": 6,
       "passes": true,
-      "notes": "Client in web/src/lib/ai/client.ts with rate limiting"
+      "notes": "Client in web/src/lib/ai/client.ts using spawn + stdin pipe pattern"
     },
     {
       "id": "US-007",
@@ -108,17 +109,18 @@
     },
     {
       "id": "US-008",
-      "title": "Create de-duplication service using GPT embeddings",
+      "title": "De-duplicate articles by canonical URL",
       "description": "As a user, I want overlapping content avoided so summaries feel concise.",
       "acceptanceCriteria": [
-        "Service identifies similar articles using OpenAI embeddings API",
-        "Duplicate/similar articles are grouped together by cosine similarity",
-        "Only one representative article per group is included in aggregations",
+        "Service identifies duplicate articles by normalized URL matching",
+        "URL normalization strips protocol, trailing slashes, and query params",
+        "Only one article per unique URL is included in aggregations",
+        "No external API calls needed for deduplication",
         "Typecheck passes"
       ],
       "priority": 8,
       "passes": true,
-      "notes": "Service in web/src/lib/ai/dedup.ts"
+      "notes": "Service in web/src/lib/ai/dedup.ts — URL-only dedup after removing semantic/embedding approach"
     },
     {
       "id": "US-009",
@@ -366,7 +368,7 @@
         "Excludes boilerplate/footer text (unsubscribe, sponsor, legal, social icons)",
         "Preserves bullet points as markdown bullets",
         "Inline candidates bypass web scraper stage safely",
-        "Inline candidates still go through semantic dedup using title + content embeddings",
+        "Inline candidates are deduplicated by URL when available",
         "UI/store can display inline items even without a URL",
         "Typecheck passes"
       ],
@@ -442,15 +444,33 @@
       "acceptanceCriteria": [
         "Given a test inbox with TL;DR, Not Boring, 6pages, and The Batch emails, the pipeline produces output",
         "Output includes scraped items for candidates with URLs and inline items for The Batch",
-        "Semantic dedup merges duplicates across sources when they refer to the same story",
-        "For URL-based items, dedup uses canonical URL + semantic check",
-        "For inline items, dedup uses title + content embeddings",
+        "URL-based dedup merges duplicates across sources when they share the same canonical URL",
         "No ingestion step throws unhandled exceptions",
         "Typecheck passes"
       ],
       "priority": 29,
       "passes": true,
       "notes": "Created web/src/__tests__/e2e-ingestion.test.ts (7 tests). Tests mixed inbox processing, deduplication, extraction methods, and error handling."
+    },
+    {
+      "id": "US-030",
+      "title": "Migrate AI backend from OpenAI API to Claude Code CLI",
+      "description": "As a developer, I want AI features to use the Claude Code CLI instead of the OpenAI API so the app works with an Anthropic subscription (no API key needed).",
+      "acceptanceCriteria": [
+        "All AI calls use Claude Code CLI (claude -p --output-format=json --model claude-sonnet-4-6) instead of OpenAI SDK",
+        "Prompts are piped via stdin to avoid ARG_MAX limits",
+        "Concurrency semaphore caps parallel CLI calls at 3",
+        "createChatCompletion signature is preserved — callers (summarize, themes, insights, chat) need zero changes",
+        "Semantic dedup via embeddings is removed; URL-based dedup is the only dedup method",
+        "openai package removed from dependencies",
+        "OPENAI_API_KEY removed from env config and settings UI",
+        "Settings page shows Claude Code CLI requirement instead of OpenAI API key",
+        "Typecheck passes",
+        "All existing tests pass"
+      ],
+      "priority": 30,
+      "passes": true,
+      "notes": "Rewrote client.ts, gutted dedup.ts, updated pipeline.ts, chat route, settings page, package.json, .env.example, and CLAUDE.md"
     }
   ]
 }

@@ -246,7 +246,7 @@ export default function SettingsPage() {
                 color: 'var(--color-success)',
               }}
             >
-{`OPENAI_API_KEY=your_openai_key
+{`# No AI API key needed - uses Claude Code CLI
 GOOGLE_CLIENT_ID=your_client_id
 GOOGLE_CLIENT_SECRET=your_client_secret
 GOOGLE_REDIRECT_URI=http://localhost:3000/api/auth/callback`}
@@ -308,28 +308,24 @@ GOOGLE_REDIRECT_URI=http://localhost:3000/api/auth/callback`}
               className="text-sm font-medium mb-2"
               style={{ color: 'var(--color-text-primary)' }}
             >
-              3. OpenAI API Key
+              3. Claude Code CLI
             </h3>
             <p
               className="text-sm"
               style={{ color: 'var(--color-text-secondary)' }}
             >
-              Get your API key from{' '}
-              <a
-                href="https://platform.openai.com/api-keys"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="transition-colors"
-                style={{ color: 'var(--color-accent)' }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.color = 'var(--color-accent-hover)';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.color = 'var(--color-accent)';
+              This app uses the{' '}
+              <code
+                className="px-1.5 py-0.5 rounded text-xs"
+                style={{
+                  backgroundColor: 'var(--color-border)',
+                  color: 'var(--color-text-primary)',
                 }}
               >
-                OpenAI Platform
-              </a>
+                claude
+              </code>{' '}
+              CLI for AI features. Make sure you have Claude Code installed and an active
+              Anthropic subscription. No API key needed.
             </p>
           </div>
         </div>
